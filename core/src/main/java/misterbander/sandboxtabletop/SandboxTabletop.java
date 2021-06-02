@@ -1,5 +1,8 @@
 package misterbander.sandboxtabletop;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+
 import misterbander.gframework.GFramework;
 
 /**
@@ -11,6 +14,9 @@ public class SandboxTabletop extends GFramework
 	public void create()
 	{
 		super.create();
-		System.out.println("hello");
+		Gdx.graphics.setContinuousRendering(false);
+		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+		
+		setScreen(new MenuScreen(this));
 	}
 }
