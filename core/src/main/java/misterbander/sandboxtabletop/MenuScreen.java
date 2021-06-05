@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
+import misterbander.sandboxtabletop.scene2d.ConnectWindow;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 public class MenuScreen extends SandboxTabletopScreen
@@ -17,10 +18,14 @@ public class MenuScreen extends SandboxTabletopScreen
 	
 	private final Color backgroundAccentColor = new Color(0xBA00A1FF);
 	
+	private final ConnectWindow connectWindow = new ConnectWindow(this);
+	
 	public MenuScreen(SandboxTabletop game)
 	{
 		super(game);
 		logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+		
+		accessibleInputWindows.add(connectWindow);
 	}
 	
 	@Override
@@ -33,7 +38,7 @@ public class MenuScreen extends SandboxTabletopScreen
 		
 		Table menuTable = new Table();
 		TextButton playButton = new TextButton("Play", game.skin, "textbuttonstyle");
-		playButton.addListener(new ChangeListener(() -> {}));
+		playButton.addListener(new ChangeListener(connectWindow::show));
 		TextButton quitButton = new TextButton("Quit", game.skin, "textbuttonstyle");
 		quitButton.addListener(new ChangeListener(() -> Gdx.app.exit()));
 		menuTable.add(playButton).padBottom(16).row();
@@ -43,6 +48,8 @@ public class MenuScreen extends SandboxTabletopScreen
 		table.add(menuTable).expand();
 		
 		stage.addActor(table);
+		
+		stage.addActor(connectWindow);
 	}
 	
 	@Override

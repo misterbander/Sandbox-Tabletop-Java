@@ -65,6 +65,12 @@ public abstract class GFramework extends Game
 		return assetManager;
 	}
 	
+	public void notifyLayoutSizeChange(int screenHeight)
+	{
+		if (getScreen() instanceof GScreen)
+			((GScreen<?>)getScreen()).onLayoutSizeChange(screenHeight);
+	}
+	
 	@Override
 	public void dispose()
 	{

@@ -9,11 +9,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.utils.Sort;
 
 import misterbander.gframework.GFramework;
+import misterbander.gframework.scene2d.MBTextField;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
@@ -51,7 +55,8 @@ public class SandboxTabletop extends GFramework
 		// Initialize skin
 		skin.add("logo", assetManager.get("textures/logo.png", Texture.class));
 		skin.addRegions(assetManager.get("textures/gui.atlas", TextureAtlas.class));
-		skin.add("infolabelstyle", new Label.LabelStyle(jhengheiui, Color.WHITE));
+		skin.add("infolabelstyle", new Label.LabelStyle(jhengheiuiMini, Color.WHITE));
+		
 		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
 		textButtonStyle.up = skin.getDrawable("button");
 		textButtonStyle.over = skin.getDrawable("buttonover");
@@ -59,7 +64,29 @@ public class SandboxTabletop extends GFramework
 		textButtonStyle.font = jhengheiui;
 		textButtonStyle.fontColor = Color.WHITE;
 		textButtonStyle.downFontColor = Color.BLACK;
+		Window.WindowStyle windowStyle = new Window.WindowStyle();
+		windowStyle.background = skin.getDrawable("window");
+		windowStyle.titleFont = jhengheiuiMini;
+		windowStyle.titleFontColor = Color.WHITE;
+		Button.ButtonStyle closeButtonStyle = new Button.ButtonStyle();
+		closeButtonStyle.up = skin.getDrawable("closebutton");
+		closeButtonStyle.over = skin.getDrawable("closebuttonover");
+		closeButtonStyle.down = skin.getDrawable("closebuttondown");
+		MBTextField.MBTextFieldStyle mbTextFieldStyle = new MBTextField.MBTextFieldStyle();
+		mbTextFieldStyle.background =skin.getDrawable("textfield");
+		mbTextFieldStyle.font = jhengheiuiMini;
+		mbTextFieldStyle.fontColor = Color.WHITE;
+		mbTextFieldStyle.messageFontColor = Color.PINK;
+		mbTextFieldStyle.focusedBackground = skin.getDrawable("textfieldfocused");
+		mbTextFieldStyle.focusedFontColor = Color.WHITE;
+		mbTextFieldStyle.cursor = skin.getDrawable("textcursor");
+		mbTextFieldStyle.selection = skin.getDrawable("textselection");
+		mbTextFieldStyle.disabledFontColor = new Color(0xAAAAAAFF);
+		
 		skin.add("textbuttonstyle", textButtonStyle);
+		skin.add("windowstyle", windowStyle);
+		skin.add("closebuttonstyle", closeButtonStyle);
+		skin.add("textfieldstyle", mbTextFieldStyle);
 		
 		setScreen(new MenuScreen(this));
 	}
