@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
+import misterbander.gframework.scene2d.AccessibleInputWindow;
 import misterbander.gframework.scene2d.GObject;
 
 public abstract class GScreen<T extends GFramework> extends ScreenAdapter
@@ -21,6 +22,7 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	
 	public final ObjectSet<GObject<T>> scheduledAddingGObjects = new ObjectSet<>();
 	public final ObjectSet<GObject<T>> scheduledRemovalGObjects = new ObjectSet<>();
+	public final ObjectSet<AccessibleInputWindow> accessibleInputWindows = new ObjectSet<>();
 	
 	public GScreen(T game)
 	{
@@ -55,6 +57,12 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	public void resize(int width, int height)
 	{
 		viewport.update(width, height, false);
+	}
+	
+	public void onLayoutSizeChange(int screenHeight)
+	{
+		for (AccessibleInputWindow window : accessibleInputWindows)
+			window.attemptAdjustPositionOnLayoutSizeChange(screenHeight);
 	}
 	
 	@Override

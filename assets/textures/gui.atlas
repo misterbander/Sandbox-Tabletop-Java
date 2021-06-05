@@ -6,22 +6,84 @@ filter: Linear,Linear
 repeat: none
 button
   rotate: false
-  xy: 246, 2
+  xy: 246, 38
   size: 240, 80
   orig: 240, 80
   offset: 0, 0
   index: -1
 buttondown
   rotate: false
-  xy: 490, 2
+  xy: 490, 38
   size: 240, 80
   orig: 240, 80
   offset: 0, 0
   index: -1
 buttonover
   rotate: false
-  xy: 2, 2
+  xy: 2, 38
   size: 240, 80
   orig: 240, 80
+  offset: 0, 0
+  index: -1
+closebutton
+  rotate: false
+  xy: 74, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+closebuttondown
+  rotate: false
+  xy: 2, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+closebuttonover
+  rotate: false
+  xy: 38, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+textcursor
+  rotate: false
+  xy: 1006, 54
+  size: 4, 64
+  orig: 4, 64
+  offset: 0, 0
+  index: -1
+textfield
+  rotate: false
+  xy: 870, 54
+  size: 64, 64
+  split: 30, 30, 30, 30
+  pad: 15, 16, 15, 17
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+textfieldfocused
+  rotate: false
+  xy: 734, 54
+  size: 64, 64
+  split: 30, 30, 30, 30
+  pad: 15, 17, 15, 17
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+textselection
+  rotate: false
+  xy: 802, 54
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+window
+  rotate: false
+  xy: 938, 54
+  size: 64, 64
+  split: 2, 2, 50, 2
+  pad: 0, 0, 50, 0
+  orig: 64, 64
   offset: 0, 0
   index: -1
