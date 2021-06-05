@@ -56,6 +56,7 @@ public class MenuScreen extends SandboxTabletopScreen
 	public void resize(int width, int height)
 	{
 		viewport.update(width, height, true);
+		Gdx.graphics.requestRendering();
 	}
 	
 	@Override
