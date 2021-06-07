@@ -7,6 +7,9 @@ import misterbander.gframework.scene2d.AccessibleInputWindow;
 import misterbander.sandboxtabletop.SandboxTabletop;
 import misterbander.sandboxtabletop.SandboxTabletopScreen;
 
+/**
+ * Represents generic windows. All windows will inherit from this class.
+ */
 public abstract class SandboxTabletopWindow extends AccessibleInputWindow
 {
 	protected final SandboxTabletop game;
@@ -34,6 +37,11 @@ public abstract class SandboxTabletopWindow extends AccessibleInputWindow
 	{
 		setVisible(true);
 		pack();
+		centerPosition();
+	}
+	
+	void centerPosition()
+	{
 		assert getStage() != null;
 		float x = (getStage().getWidth() - getWidth())/2;
 		float y = (getStage().getHeight() - getHeight())/2;
