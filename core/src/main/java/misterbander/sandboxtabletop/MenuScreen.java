@@ -44,20 +44,20 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		Texture logo = game.skin.get("logo", Texture.class);
 		logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-		
-		Table table = new Table();
-		table.setFillParent(true);
-		table.add(new Image(logo)).top().pad(16);
-		
-		Table menuTable = new Table();
 		TextButton playButton = new TextButton("Play", game.skin, "textbuttonstyle");
 		playButton.addListener(new ChangeListener(connectWindow::show));
 		TextButton quitButton = new TextButton("Quit", game.skin, "textbuttonstyle");
 		quitButton.addListener(new ChangeListener(() -> Gdx.app.exit()));
-		menuTable.add(playButton).padBottom(16).row();
-		menuTable.add(quitButton);
 		
+		Table table = new Table();
+		table.setFillParent(true);
+		table.add(new Image(logo)).top().pad(16);
 		table.row();
+		
+		Table menuTable = new Table();
+		menuTable.defaults().prefWidth(224).space(16);
+		menuTable.add(playButton).row();
+		menuTable.add(quitButton);
 		table.add(menuTable).expand();
 		
 		stage.addActor(table);
