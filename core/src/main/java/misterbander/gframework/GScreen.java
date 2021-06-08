@@ -1,6 +1,7 @@
 package misterbander.gframework;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,9 +17,13 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	public final T game;
 	
 	public final OrthographicCamera camera = new OrthographicCamera();
+	public final OrthographicCamera uiCamera = new OrthographicCamera();
 	/** Viewport to project camera contents. */
-	public final ExtendViewport viewport;
+	public final ExtendViewport viewport = new ExtendViewport(1280, 720, camera);
+	/** Viewport to project UI contents */
+	public final ExtendViewport uiViewport = new ExtendViewport(1280, 720, uiCamera);
 	public final Stage stage;
+	public final Stage uiStage;
 	
 	public final ObjectSet<GObject<T>> scheduledAddingGObjects = new ObjectSet<>();
 	public final ObjectSet<GObject<T>> scheduledRemovalGObjects = new ObjectSet<>();
@@ -28,15 +33,15 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	{
 		this.game = game;
 		camera.setToOrtho(false);
-		camera.position.set(camera.viewportWidth/2, camera.viewportHeight/2, 0);
-		viewport = new ExtendViewport(1280, 720, camera);
+		uiCamera.setToOrtho(false);
 		stage = new Stage(viewport, game.getBatch());
+		uiStage = new Stage(uiViewport, game.getBatch());
 	}
 	
 	@Override
 	public void show()
 	{
-		Gdx.input.setInputProcessor(stage);
+		Gdx.input.setInputProcessor(new InputMultiplexer(uiStage, stage));
 	}
 	
 	/**
@@ -57,6 +62,8 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	public void resize(int width, int height)
 	{
 		viewport.update(width, height, false);
+		uiViewport.update(width, height, true);
+		Gdx.graphics.requestRendering();
 	}
 	
 	public void onLayoutSizeChange(int screenHeight)
@@ -74,9 +81,15 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 		game.getBatch().setProjectionMatrix(camera.combined);
 		game.getShapeRenderer().setProjectionMatrix(camera.combined);
 		game.getShapeDrawer().update();
-		
 		stage.act(delta);
 		stage.draw();
+		
+		uiCamera.update();
+		game.getBatch().setProjectionMatrix(uiCamera.combined);
+		game.getShapeRenderer().setProjectionMatrix(uiCamera.combined);
+		game.getShapeDrawer().update();
+		uiStage.act(delta);
+		uiStage.draw();
 		
 		for (GObject<T> gObject : scheduledAddingGObjects)
 			spawnGObject(gObject);

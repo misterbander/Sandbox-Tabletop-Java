@@ -28,7 +28,6 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
  */
 public class MenuScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
-	
 	private final Color backgroundAccentColor = new Color(0xBA00A1FF);
 	
 	public final ConnectWindow connectWindow = new ConnectWindow(this);
@@ -60,19 +59,12 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 		menuTable.add(quitButton);
 		table.add(menuTable).expand();
 		
-		stage.addActor(table);
+		uiStage.addActor(table);
 		
-		stage.addActor(connectWindow);
-		stage.addActor(connectingDialog);
+		uiStage.addActor(connectWindow);
+		uiStage.addActor(connectingDialog);
 		
 		accessibleInputWindows.add(connectWindow);
-	}
-	
-	@Override
-	public void resize(int width, int height)
-	{
-		viewport.update(width, height, true);
-		Gdx.graphics.requestRendering();
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -31,7 +32,9 @@ public class SandboxTabletop extends GFramework
 	// Skins
 	public final Skin skin = new Skin();
 	
-	/** Random UUID for player identification. */
+	/**
+	 * Random UUID for player identification.
+	 */
 	public UUID uuid = UUID.randomUUID();
 	
 	@Override
@@ -59,8 +62,14 @@ public class SandboxTabletop extends GFramework
 		// Initialize skin
 		skin.add("logo", assetManager.get("textures/logo.png", Texture.class));
 		skin.addRegions(assetManager.get("textures/gui.atlas", TextureAtlas.class));
-		skin.add("infolabelstyle", new Label.LabelStyle(jhengheiuiMini, Color.WHITE));
 		
+		Label.LabelStyle infoLabelStyle = new Label.LabelStyle(jhengheiuiMini, Color.WHITE);
+		Label.LabelStyle chatLabelStyle = new Label.LabelStyle(infoLabelStyle);
+		chatLabelStyle.background = skin.newDrawable("chatbackground");
+		chatLabelStyle.background.setTopHeight(4);
+		chatLabelStyle.background.setLeftWidth(16);
+		chatLabelStyle.background.setRightWidth(16);
+		chatLabelStyle.background.setBottomHeight(4);
 		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
 		textButtonStyle.up = skin.getDrawable("button");
 		textButtonStyle.over = skin.getDrawable("buttonover");
@@ -76,21 +85,39 @@ public class SandboxTabletop extends GFramework
 		closeButtonStyle.up = skin.getDrawable("closebutton");
 		closeButtonStyle.over = skin.getDrawable("closebuttonover");
 		closeButtonStyle.down = skin.getDrawable("closebuttondown");
-		MBTextField.MBTextFieldStyle mbTextFieldStyle = new MBTextField.MBTextFieldStyle();
-		mbTextFieldStyle.background =skin.getDrawable("textfield");
-		mbTextFieldStyle.font = jhengheiuiMini;
-		mbTextFieldStyle.fontColor = Color.WHITE;
-		mbTextFieldStyle.messageFontColor = Color.PINK;
-		mbTextFieldStyle.focusedBackground = skin.getDrawable("textfieldfocused");
-		mbTextFieldStyle.focusedFontColor = Color.WHITE;
-		mbTextFieldStyle.cursor = skin.getDrawable("textcursor");
-		mbTextFieldStyle.selection = skin.getDrawable("textselection");
-		mbTextFieldStyle.disabledFontColor = new Color(0xAAAAAAFF);
+		ImageButton.ImageButtonStyle imageButtonStyleBase = new ImageButton.ImageButtonStyle();
+		imageButtonStyleBase.up = skin.getDrawable("button");
+		imageButtonStyleBase.over = skin.getDrawable("buttonover");
+		imageButtonStyleBase.down = skin.getDrawable("buttondown");
+		ImageButton.ImageButtonStyle menuButtonStyle = new ImageButton.ImageButtonStyle(imageButtonStyleBase);
+		menuButtonStyle.imageUp = skin.getDrawable("menuicon");
+		menuButtonStyle.imageDown = skin.getDrawable("menuicondown");
+		MBTextField.MBTextFieldStyle mbTextFieldStyleBase = new MBTextField.MBTextFieldStyle();
+		mbTextFieldStyleBase.font = jhengheiuiMini;
+		mbTextFieldStyleBase.fontColor = Color.WHITE;
+		mbTextFieldStyleBase.messageFontColor = Color.GRAY;
+		mbTextFieldStyleBase.focusedFontColor = Color.WHITE;
+		mbTextFieldStyleBase.cursor = skin.getDrawable("textcursor");
+		mbTextFieldStyleBase.selection = skin.getDrawable("textselection");
+		mbTextFieldStyleBase.disabledFontColor = new Color(0xAAAAAAFF);
+		MBTextField.MBTextFieldStyle chatTextFieldStyle = new MBTextField.MBTextFieldStyle(mbTextFieldStyleBase);
+		chatTextFieldStyle.background = skin.getDrawable("chatbackground");
+		chatTextFieldStyle.background.setTopHeight(16);
+		chatTextFieldStyle.background.setLeftWidth(16);
+		chatTextFieldStyle.background.setRightWidth(16);
+		chatTextFieldStyle.background.setBottomHeight(16);
+		MBTextField.MBTextFieldStyle formtextfieldstyle = new MBTextField.MBTextFieldStyle(mbTextFieldStyleBase);
+		formtextfieldstyle.background = skin.getDrawable("textfield");
+		formtextfieldstyle.focusedBackground = skin.getDrawable("textfieldfocused");
 		
+		skin.add("infolabelstyle", infoLabelStyle);
+		skin.add("chatlabelstyle", chatLabelStyle);
 		skin.add("textbuttonstyle", textButtonStyle);
 		skin.add("windowstyle", windowStyle);
 		skin.add("closebuttonstyle", closeButtonStyle);
-		skin.add("textfieldstyle", mbTextFieldStyle);
+		skin.add("menubuttonstyle", menuButtonStyle);
+		skin.add("chattextfieldstyle", chatTextFieldStyle);
+		skin.add("formtextfieldstyle", formtextfieldstyle);
 		
 		setScreen(new MenuScreen(this));
 	}
