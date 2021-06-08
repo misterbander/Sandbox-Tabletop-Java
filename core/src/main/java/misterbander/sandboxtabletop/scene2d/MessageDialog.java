@@ -28,6 +28,7 @@ public class MessageDialog extends SandboxTabletopWindow
 			if (buttonAction != null)
 				buttonAction.run();
 		}));
+		textButton.getLabelCell().prefWidth(192);
 		
 		Table table = new Table();
 		table.defaults().pad(16).space(16);

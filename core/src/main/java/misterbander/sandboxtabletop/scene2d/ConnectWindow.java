@@ -57,21 +57,21 @@ public class ConnectWindow extends SandboxTabletopWindow
 		Table table = new Table();
 		table.defaults().left().space(16);
 		table.add(new Label("Username:", game.skin, "infolabelstyle"));
-		table.add(usernameTextField).width(288);
+		table.add(usernameTextField).prefWidth(288);
 		table.row();
 		table.add(new Label("Server IP Address:", game.skin, "infolabelstyle"));
-		table.add(ipTextField).width(288);
+		table.add(ipTextField).prefWidth(288);
 		table.row();
 		table.add(new Label("Server Port:", game.skin, "infolabelstyle"));
-		table.add(portTextField).width(288);
+		table.add(portTextField).prefWidth(288);
 		table.row();
 		
-		HorizontalGroup horizontalGroup = new HorizontalGroup();
-		horizontalGroup.space(16);
-		horizontalGroup.addActor(joinButton);
-		horizontalGroup.addActor(cancelButton);
+		Table joinCancelTable = new Table();
+		joinCancelTable.defaults().space(16);
+		joinCancelTable.add(joinButton).prefWidth(224);
+		joinCancelTable.add(cancelButton);
 		
-		table.add(horizontalGroup).colspan(2).center();
+		table.add(joinCancelTable).colspan(2).center();
 		add(table);
 		addListener(new UnfocusListener(this));
 	}

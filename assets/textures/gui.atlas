@@ -1,61 +1,67 @@
 
 gui.png
-size: 1024,128
+size: 256,256
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 button
   rotate: false
-  xy: 246, 38
-  size: 240, 80
-  orig: 240, 80
+  xy: 2, 70
+  size: 80, 80
+  split: 38, 38, 38, 38
+  pad: 15, 17, 15, 17
+  orig: 80, 80
   offset: 0, 0
   index: -1
 buttondown
   rotate: false
-  xy: 490, 38
-  size: 240, 80
-  orig: 240, 80
+  xy: 86, 154
+  size: 80, 80
+  split: 38, 38, 38, 38
+  pad: 15, 17, 15, 17
+  orig: 80, 80
   offset: 0, 0
   index: -1
 buttonover
   rotate: false
-  xy: 2, 38
-  size: 240, 80
-  orig: 240, 80
+  xy: 2, 154
+  size: 80, 80
+  split: 38, 38, 38, 38
+  pad: 15, 17, 15, 17
+  orig: 80, 80
   offset: 0, 0
   index: -1
 closebutton
   rotate: false
-  xy: 74, 2
+  xy: 162, 98
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebuttondown
   rotate: false
-  xy: 2, 2
+  xy: 170, 134
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebuttonover
   rotate: false
-  xy: 38, 2
+  xy: 206, 134
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 textcursor
   rotate: false
-  xy: 1006, 54
+  xy: 154, 86
   size: 4, 64
   orig: 4, 64
   offset: 0, 0
   index: -1
 textfield
   rotate: false
-  xy: 870, 54
+  xy: 170, 170
   size: 64, 64
   split: 30, 30, 30, 30
   pad: 15, 16, 15, 17
@@ -64,7 +70,7 @@ textfield
   index: -1
 textfieldfocused
   rotate: false
-  xy: 734, 54
+  xy: 2, 2
   size: 64, 64
   split: 30, 30, 30, 30
   pad: 15, 17, 15, 17
@@ -73,14 +79,14 @@ textfieldfocused
   index: -1
 textselection
   rotate: false
-  xy: 802, 54
+  xy: 86, 86
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 938, 54
+  xy: 70, 2
   size: 64, 64
   split: 2, 2, 50, 2
   pad: 0, 0, 50, 0
