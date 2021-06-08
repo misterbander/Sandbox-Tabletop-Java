@@ -31,9 +31,16 @@ buttonover
   orig: 80, 80
   offset: 0, 0
   index: -1
-closebutton
+chatbackground
   rotate: false
   xy: 162, 98
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+closebutton
+  rotate: false
+  xy: 198, 98
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -48,6 +55,20 @@ closebuttondown
 closebuttonover
   rotate: false
   xy: 206, 134
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+menuicon
+  rotate: false
+  xy: 162, 62
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+menuicondown
+  rotate: false
+  xy: 198, 62
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

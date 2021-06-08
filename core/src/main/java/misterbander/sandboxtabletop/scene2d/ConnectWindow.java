@@ -1,6 +1,5 @@
 package misterbander.sandboxtabletop.scene2d;
 
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -18,7 +17,7 @@ import misterbander.sandboxtabletop.net.SandboxTabletopClient;
  */
 public class ConnectWindow extends SandboxTabletopWindow
 {
-	public final MBTextField usernameTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
+	public final MBTextField usernameTextField = new MBTextField(this, "", game.skin, "formtextfieldstyle");
 	
 	public ConnectWindow(MenuScreen screen)
 	{
@@ -27,8 +26,8 @@ public class ConnectWindow extends SandboxTabletopWindow
 		// Set up the UI
 		
 		defaults().pad(16);
-		MBTextField ipTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
-		MBTextField portTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
+		MBTextField ipTextField = new MBTextField(this, "", game.skin, "formtextfieldstyle");
+		MBTextField portTextField = new MBTextField(this, "", game.skin, "formtextfieldstyle");
 		portTextField.setTextFieldFilter(new MBTextField.MBTextFieldFilter.DigitsOnlyFilter());
 		TextButton joinButton = new TextButton("Join", game.skin, "textbuttonstyle");
 		joinButton.addListener(screen.new ChangeListener(() ->
