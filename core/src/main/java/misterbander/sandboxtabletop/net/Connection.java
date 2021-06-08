@@ -15,6 +15,7 @@ import java.net.Socket;
  */
 public class Connection extends Thread
 {
+	public final InetAddress localAddress;
 	public final InetAddress remoteAddress;
 	private final ObjectOutputStream outgoing;
 	private final ObjectInputStream incoming;
@@ -24,6 +25,7 @@ public class Connection extends Thread
 	
 	public Connection(ConnectionEventListener listener, Socket socket) throws IOException
 	{
+		localAddress = socket.getLocalAddress();
 		remoteAddress = socket.getInetAddress();
 		outgoing = new ObjectOutputStream(socket.getOutputStream());
 		incoming = new ObjectInputStream(socket.getInputStream());

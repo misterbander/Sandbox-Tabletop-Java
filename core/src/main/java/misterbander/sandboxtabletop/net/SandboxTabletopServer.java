@@ -1,11 +1,15 @@
 package misterbander.sandboxtabletop.net;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+
+import misterbander.sandboxtabletop.net.model.User;
 
 /**
  * This is the server that can be run separately.
@@ -14,6 +18,8 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 {
 	private final ServerSocket serverSocket;
 	private final Array<Connection> connections = new Array<>();
+	
+	private final ObjectMap<Connection, User> connectionUserMap = new ObjectMap<>();
 	
 	public static void main(String[] args) throws IOException
 	{
@@ -80,11 +86,19 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	public void connectionClosed(Connection connection)
 	{
 		System.out.println("[SandboxTabletopServer | INFO] " + connection.remoteAddress + " disconnected");
+		User user = connectionUserMap.remove(connection);
+		if (user != null)
+			System.out.println("[SandboxTabletopServer | INFO] " + user + " left the game");
 	}
 	
 	@Override
 	public void objectReceived(Connection connection, Serializable object)
 	{
-		ConnectionEventListener.super.objectReceived(connection, object);
+		if (object instanceof User)
+		{
+			User user = (User)object;
+			System.out.println("[SandboxTabletopServer | INFO] " + user + " joined the game");
+			connectionUserMap.put(connection, user);
+		}
 	}
 }

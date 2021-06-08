@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Null;
 import misterbander.sandboxtabletop.net.Connection;
 import misterbander.sandboxtabletop.net.ConnectionEventListener;
 import misterbander.sandboxtabletop.net.SandboxTabletopClient;
+import misterbander.sandboxtabletop.net.model.User;
 import misterbander.sandboxtabletop.scene2d.ConnectWindow;
 import misterbander.sandboxtabletop.scene2d.MessageDialog;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -95,11 +96,13 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 	public void connectionOpened(Connection connection)
 	{
 		Gdx.app.log("SandboxTabletopClient | INFO", "Connected to " + connection.remoteAddress);
-		
 		// We just connected to the server from the main menu, we can go into the room now
 		RoomScreen roomScreen = new RoomScreen(game);
 		assert client != null;
 		client.setConnectionEventListener(roomScreen);
+		User user = new User(connectWindow.usernameTextField.getText(), game.uuid);
+		client.send(user);
+		Gdx.app.log("SandboxTabletopClient | INFO", "Joining game as " + user);
 		game.setScreen(roomScreen);
 	}
 	
