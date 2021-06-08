@@ -28,7 +28,6 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
  */
 public class MenuScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
-	private final Texture logo = game.skin.get("logo", Texture.class);
 	
 	private final Color backgroundAccentColor = new Color(0xBA00A1FF);
 	
@@ -40,17 +39,11 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 	public MenuScreen(SandboxTabletop game)
 	{
 		super(game);
-		logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-		
-		accessibleInputWindows.add(connectWindow);
-	}
-	
-	@Override
-	public void show()
-	{
-		super.show();
 		
 		// Set up the UI
+		
+		Texture logo = game.skin.get("logo", Texture.class);
+		logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 		
 		Table table = new Table();
 		table.setFillParent(true);
@@ -71,6 +64,8 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		stage.addActor(connectWindow);
 		stage.addActor(connectingDialog);
+		
+		accessibleInputWindows.add(connectWindow);
 	}
 	
 	@Override
