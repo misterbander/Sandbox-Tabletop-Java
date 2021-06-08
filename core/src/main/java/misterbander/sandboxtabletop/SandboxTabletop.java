@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Sort;
 
+import java.util.UUID;
+
 import misterbander.gframework.GFramework;
 import misterbander.gframework.scene2d.MBTextField;
 
@@ -29,6 +31,9 @@ public class SandboxTabletop extends GFramework
 	
 	// Skins
 	public final Skin skin = new Skin();
+	
+	/** Random UUID for player identification. */
+	public UUID uuid = UUID.randomUUID();
 	
 	@Override
 	public void create()

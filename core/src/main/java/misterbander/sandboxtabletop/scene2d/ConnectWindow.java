@@ -18,6 +18,8 @@ import misterbander.sandboxtabletop.net.SandboxTabletopClient;
  */
 public class ConnectWindow extends SandboxTabletopWindow
 {
+	public final MBTextField usernameTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
+	
 	public ConnectWindow(MenuScreen screen)
 	{
 		super(screen, "Connect", true);
@@ -25,7 +27,6 @@ public class ConnectWindow extends SandboxTabletopWindow
 		// Set up the UI
 		
 		defaults().pad(16);
-		MBTextField usernameTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
 		MBTextField ipTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
 		MBTextField portTextField = new MBTextField(this, "", game.skin, "textfieldstyle");
 		portTextField.setTextFieldFilter(new MBTextField.MBTextFieldFilter.DigitsOnlyFilter());

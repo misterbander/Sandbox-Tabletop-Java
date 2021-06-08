@@ -39,6 +39,13 @@ public class SandboxTabletopClient extends Thread
 	}
 	
 	@Override
+	public synchronized void start()
+	{
+		setDaemon(true);
+		super.start();
+	}
+	
+	@Override
 	public void run()
 	{
 		try
