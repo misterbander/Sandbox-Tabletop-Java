@@ -84,9 +84,9 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 	{
 		Gdx.app.log("SandboxTabletopClient | INFO", "Connected to " + connection.remoteAddress);
 		// We just connected to the server from the main menu, we can go into the room now
-		User user = new User(connectWindow.usernameTextField.getText(), game.uuid);
-		RoomScreen roomScreen = new RoomScreen(game, user);
 		assert client != null;
+		User user = new User(connectWindow.usernameTextField.getText(), game.uuid);
+		RoomScreen roomScreen = new RoomScreen(game, client, user);
 		client.send(user);
 		client.setConnectionEventListener(roomScreen);
 		game.setScreen(roomScreen);

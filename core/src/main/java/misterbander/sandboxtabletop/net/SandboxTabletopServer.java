@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
+import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.User;
 
 /**
@@ -99,6 +100,14 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 			User user = (User)object;
 			System.out.println("[SandboxTabletopServer | INFO] " + user + " joined the game");
 			connectionUserMap.put(connection, user);
+			
+			broadcast(new Chat(user, user.username + " joined the game", true));
+		}
+		else if (object instanceof Chat)
+		{
+			Chat chat = (Chat)object;
+			System.out.println(chat.message);
+			broadcast(chat);
 		}
 	}
 }

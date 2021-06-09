@@ -1,6 +1,5 @@
 package misterbander.sandboxtabletop.net;
 
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -19,7 +18,7 @@ public class Connection extends Thread
 	public final InetAddress remoteAddress;
 	private final ObjectOutputStream outgoing;
 	private final ObjectInputStream incoming;
-	private final ConnectionEventListener listener;
+	private volatile ConnectionEventListener listener;
 	
 	private volatile boolean isConnected = true;
 	
@@ -70,6 +69,11 @@ public class Connection extends Thread
 	public boolean isConnected()
 	{
 		return isConnected;
+	}
+	
+	public void setConnectionEventListener(ConnectionEventListener listener)
+	{
+		this.listener = listener;
 	}
 	
 	/**

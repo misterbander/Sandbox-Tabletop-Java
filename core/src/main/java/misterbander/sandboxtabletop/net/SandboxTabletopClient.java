@@ -71,6 +71,8 @@ public class SandboxTabletopClient extends Thread
 	public void setConnectionEventListener(ConnectionEventListener listener)
 	{
 		this.listener = listener;
+		assert connection != null;
+		connection.setConnectionEventListener(listener);
 	}
 	
 	public void send(Serializable object)

@@ -1,5 +1,6 @@
 package misterbander.sandboxtabletop;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -15,21 +16,30 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 
+import java.io.Serializable;
+
 import misterbander.gframework.scene2d.MBTextField;
 import misterbander.gframework.scene2d.UnfocusListener;
+import misterbander.sandboxtabletop.net.Connection;
 import misterbander.sandboxtabletop.net.ConnectionEventListener;
+import misterbander.sandboxtabletop.net.SandboxTabletopClient;
+import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.User;
 
 public class RoomScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
+	private final SandboxTabletopClient client;
+	
 	private final User user;
 	
 	/** Stores recent chat popup labels that disappear after 5 seconds. */
 	private final VerticalGroup chatPopupLabels = new VerticalGroup();
 	
-	public RoomScreen(SandboxTabletop game, User user)
+	public RoomScreen(SandboxTabletop game, SandboxTabletopClient client, User user)
 	{
 		super(game);
+		this.client = client;
+		
 		this.user = user;
 		
 		// Set up UI
@@ -45,8 +55,9 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			{
 				if (event.getKeyCode() == Input.Keys.ENTER && !chatTextField.getText().isEmpty())
 				{
-					addChatMessage("<" + user.username + "> " + chatTextField.getText());
+					client.send(new Chat(user, "<" + user.username + "> " + chatTextField.getText(), false));
 					chatTextField.setText("");
+//					addChatMessage("<" + user.username + "> " + chatTextField.getText());
 					return true;
 				}
 				return false;
@@ -73,18 +84,9 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	/**
 	 * Appends a chat message to the chat history, and adds a chat label that disappears after 5 seconds.
 	 * @param message the message
-	 */
-	public void addChatMessage(String message)
-	{
-		addChatMessage(message, null);
-	}
-	
-	/**
-	 * Appends a chat message to the chat history, and adds a chat label that disappears after 5 seconds.
-	 * @param message the message
 	 * @param color   color of the chat message
 	 */
-	public void addChatMessage(String message, @Null Color color)
+	private void addChatMessage(String message, @Null Color color)
 	{
 		Label chatLabel = new Label(message, game.skin, "chatlabelstyle");
 		if (color != null)
@@ -96,5 +98,16 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		removeActorAction.setTarget(chatLabel);
 		chatLabel.addAction(new SequenceAction(new DelayAction(5), alphaAction, removeActorAction));
 		chatPopupLabels.addActor(chatLabel);
+	}
+	
+	@Override
+	public void objectReceived(Connection connection, Serializable object)
+	{
+		if (object instanceof Chat)
+		{
+			Chat chat = (Chat)object;
+			Gdx.app.log("<" + chat.user.username + ">", chat.message);
+			addChatMessage(chat.message, chat.isSystemMessage ? Color.YELLOW : null);
+		}
 	}
 }
