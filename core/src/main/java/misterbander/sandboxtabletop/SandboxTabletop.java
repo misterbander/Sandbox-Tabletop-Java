@@ -41,7 +41,6 @@ public class SandboxTabletop extends GFramework
 	public void create()
 	{
 		super.create();
-		Gdx.graphics.setContinuousRendering(false);
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		
 		// Load assets
