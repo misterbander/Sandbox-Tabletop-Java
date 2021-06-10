@@ -26,6 +26,7 @@ public class ConnectWindow extends SandboxTabletopWindow
 		// Set up the UI
 		
 		defaults().pad(16);
+		usernameTextField.setMaxLength(20);
 		MBTextField ipTextField = new MBTextField(this, "", game.skin, "formtextfieldstyle");
 		MBTextField portTextField = new MBTextField(this, "", game.skin, "formtextfieldstyle");
 		portTextField.setTextFieldFilter(new MBTextField.MBTextFieldFilter.DigitsOnlyFilter());
