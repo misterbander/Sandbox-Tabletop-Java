@@ -12,7 +12,7 @@ import java.net.Socket;
  * This is the client class that will handle connecting to the server, as well as sending and receiving objects to and
  * from the server.
  */
-public class SandboxTabletopClient extends Thread
+public class SandboxTabletopClient extends Thread implements ConnectionEventListener
 {
 	private ConnectionEventListener listener;
 	private final Socket socket;
@@ -52,14 +52,14 @@ public class SandboxTabletopClient extends Thread
 		{
 			Gdx.app.log("SandboxTabletopClient | INFO", "Connecting to " + hostAddress + " at port " + port + "...");
 			socket.connect(new InetSocketAddress(hostAddress, port));
-			connection = new Connection(listener, socket);
+			connection = new Connection(this, socket);
 			connection.start();
-			Gdx.app.postRunnable(() -> listener.connectionOpened(connection));
+			Gdx.app.postRunnable(() -> connectionOpened(connection));
 		}
 		catch (Exception e)
 		{
 			if (!isConnectionCancelled)
-				Gdx.app.postRunnable(() -> listener.exceptionOccurred(null, e));
+				Gdx.app.postRunnable(() -> exceptionOccurred(null, e));
 		}
 	}
 	
@@ -71,8 +71,6 @@ public class SandboxTabletopClient extends Thread
 	public void setConnectionEventListener(ConnectionEventListener listener)
 	{
 		this.listener = listener;
-		assert connection != null;
-		connection.setConnectionEventListener(listener);
 	}
 	
 	public void send(Serializable object)
@@ -91,5 +89,29 @@ public class SandboxTabletopClient extends Thread
 			return;
 		}
 		connection.close();
+	}
+	
+	@Override
+	public void connectionOpened(Connection connection)
+	{
+		Gdx.app.postRunnable(() -> listener.connectionOpened(connection));
+	}
+	
+	@Override
+	public void connectionClosed(Connection connection)
+	{
+		Gdx.app.postRunnable(() -> listener.connectionClosed(connection));
+	}
+	
+	@Override
+	public void objectReceived(Connection connection, Serializable object)
+	{
+		Gdx.app.postRunnable(() -> listener.objectReceived(connection, object));
+	}
+	
+	@Override
+	public void exceptionOccurred(@Null Connection connection, Exception e)
+	{
+		Gdx.app.postRunnable(() -> listener.exceptionOccurred(connection, e));
 	}
 }
