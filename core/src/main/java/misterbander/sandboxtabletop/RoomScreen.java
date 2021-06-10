@@ -41,6 +41,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	private final User user;
 	
 	private final ImageButton menuButton = new ImageButton(game.skin, "menubuttonstyle");
+	private final MBTextField chatTextField = new MBTextField("", game.skin, "chattextfieldstyle");
 	/** Stores chat history */
 	private final VerticalGroup chatHistory = new VerticalGroup();
 	private final ScrollPane chatHistoryScrollPane = new ScrollPane(chatHistory, game.skin, "scrollpanestyle");
@@ -56,7 +57,24 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		// Set up UI
 		
-		MBTextField chatTextField = new MBTextField("", game.skin, "chattextfieldstyle");
+		Actor fallbackActor = new Actor()
+		{
+			@Override
+			public Actor hit(float x, float y, boolean touchable)
+			{
+				return this;
+			}
+		};
+		fallbackActor.addListener(new InputListener()
+		{
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
+			{
+				uiStage.setKeyboardFocus(null);
+				Gdx.input.setOnscreenKeyboardVisible(false);
+				return true;
+			}
+		});
 		chatTextField.setMessageText(Gdx.app.getType() == Application.ApplicationType.Android ? "Tap here to chat..." : "Press T to chat...");
 		chatTextField.setMaxLength(256);
 		// Add a listener so that we can send chat on enter key
@@ -87,6 +105,15 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		});
 		chatPopup.columnAlign(Align.left);
 		chatHistory.grow();
+		chatHistoryScrollPane.addListener(new InputListener()
+		{
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button)
+			{
+				Gdx.input.setOnscreenKeyboardVisible(false);
+				return true;
+			}
+		});
 		chatHistoryScrollPane.setVisible(false);
 		uiStage.setScrollFocus(chatHistoryScrollPane);
 		
@@ -108,8 +135,8 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		table.add(chatTable).pad(16).top().expandX().fillX().maxHeight(312);
 		
+		uiStage.addActor(fallbackActor);
 		uiStage.addActor(table);
-		uiStage.addListener(new UnfocusListener(chatTextField));
 		uiStage.addListener(new InputListener()
 		{
 			@Override
