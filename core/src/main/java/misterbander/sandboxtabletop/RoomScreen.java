@@ -1,8 +1,10 @@
 package misterbander.sandboxtabletop;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
@@ -11,8 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.actions.RemoveActorAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 
@@ -32,8 +37,11 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	
 	private final User user;
 	
+	/** Stores chat history */
+	private final VerticalGroup chatHistory = new VerticalGroup();
+	private final ScrollPane chatHistoryScrollPane = new ScrollPane(chatHistory, game.skin, "scrollpanestyle");
 	/** Stores recent chat popup labels that disappear after 5 seconds. */
-	private final VerticalGroup chatPopupLabels = new VerticalGroup();
+	private final VerticalGroup chatPopup = new VerticalGroup();
 	
 	public RoomScreen(SandboxTabletop game, SandboxTabletopClient client, User user)
 	{
@@ -45,9 +53,10 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		// Set up UI
 		
 		ImageButton menuButton = new ImageButton(game.skin, "menubuttonstyle");
-		
 		MBTextField chatTextField = new MBTextField("", game.skin, "chattextfieldstyle");
-		chatTextField.setMessageText("Tap here to chat...");
+		chatTextField.setMessageText(Gdx.app.getType() == Application.ApplicationType.Android ? "Tap here to chat..." : "Press T to chat...");
+		chatTextField.setMaxLength(128);
+		// Add a listener so that we can send chat on enter key
 		chatTextField.addListener(new InputListener()
 		{
 			@Override
@@ -57,28 +66,66 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				{
 					client.send(new Chat(user, "<" + user.username + "> " + chatTextField.getText(), false));
 					chatTextField.setText("");
-//					addChatMessage("<" + user.username + "> " + chatTextField.getText());
+					uiStage.setKeyboardFocus(null);
 					return true;
 				}
 				return false;
 			}
 		});
-		
-		Table chatTable = new Table();
-		chatTable.add(chatTextField).growX();
-		chatTable.row();
-		chatTable.add(chatPopupLabels).left();
-		chatPopupLabels.columnAlign(Align.left);
+		// Add another listener so that we can toggle between full chat history view or recent popup chat history view
+		chatTextField.addListener(new FocusListener()
+		{
+			@Override
+			public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused)
+			{
+				chatPopup.setVisible(!focused);
+				chatHistoryScrollPane.setVisible(focused);
+			}
+		});
+		chatPopup.columnAlign(Align.left);
+		chatHistory.grow();
+		chatHistoryScrollPane.setVisible(false);
+		uiStage.setScrollFocus(chatHistoryScrollPane);
 		
 		Table table = new Table();
 		table.setFillParent(true);
 		table.setDebug(true, true);
 		table.top();
 		table.add(menuButton).top().pad(16);
-		table.add(chatTable).pad(16).top().expandX().fillX();
+		
+		Table chatTable = new Table();
+		chatTable.defaults().growX();
+		chatTable.add(chatTextField);
+		chatTable.row();
+		Stack stack = new Stack();
+		Table chatPopupTable = new Table();
+		chatPopupTable.add(chatPopup).expand().top().left();
+		stack.add(chatPopupTable);
+		stack.add(chatHistoryScrollPane);
+		chatTable.add(stack).left();
+		
+		table.add(chatTable).pad(16).top().expandX().fillX().maxHeight(312);
 		
 		uiStage.addActor(table);
 		uiStage.addListener(new UnfocusListener(chatTextField));
+		uiStage.addListener(new InputListener()
+		{
+			@Override
+			public boolean keyDown(InputEvent event, int keycode)
+			{
+				if (event.getKeyCode() == Input.Keys.T && !chatTextField.hasKeyboardFocus())
+				{
+					Gdx.app.postRunnable(() -> uiStage.setKeyboardFocus(chatTextField));
+					return true;
+				}
+				else if (event.getKeyCode() == Input.Keys.ESCAPE)
+				{
+					uiStage.setKeyboardFocus(null);
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 	
 	/**
@@ -96,8 +143,22 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		alphaAction.setDuration(1);
 		RemoveActorAction removeActorAction = new RemoveActorAction(); // Action to remove label after fade out
 		removeActorAction.setTarget(chatLabel);
-		chatLabel.addAction(new SequenceAction(new DelayAction(5), alphaAction, removeActorAction));
-		chatPopupLabels.addActor(chatLabel);
+		chatLabel.addAction(new SequenceAction(new DelayAction(10), alphaAction, removeActorAction));
+		chatPopup.addActor(chatLabel);
+		if (chatPopup.getChildren().size == 7) // Maximum 6 children
+		{
+			Actor firstChatPopup = chatPopup.removeActorAt(0, false);
+			firstChatPopup.clear();
+		}
+		
+		// Add to history
+		Label chatHistoryLabel = new Label(message, game.skin, "infolabelstyle");
+		if (color != null)
+			chatHistoryLabel.setColor(color.cpy());
+		chatHistory.pad(4, 16, 4, 16).space(8);
+		chatHistory.addActor(chatHistoryLabel);
+		chatHistoryScrollPane.layout();
+		chatHistoryScrollPane.setScrollPercentY(100);
 	}
 	
 	@Override
@@ -106,7 +167,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		if (object instanceof Chat)
 		{
 			Chat chat = (Chat)object;
-			Gdx.app.log("<" + chat.user.username + ">", chat.message);
+			Gdx.app.log("SandboxTabletopClient | CHAT", chat.message);
 			addChatMessage(chat.message, chat.isSystemMessage ? Color.YELLOW : null);
 		}
 	}
