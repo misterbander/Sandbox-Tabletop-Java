@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -80,6 +81,9 @@ public class SandboxTabletop extends GFramework
 		windowStyle.background = skin.getDrawable("window");
 		windowStyle.titleFont = jhengheiuiMini;
 		windowStyle.titleFontColor = Color.WHITE;
+		ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
+		scrollPaneStyle.background = skin.newDrawable("chatbackground");
+		scrollPaneStyle.vScrollKnob = skin.getDrawable("textcursor");
 		Button.ButtonStyle closeButtonStyle = new Button.ButtonStyle();
 		closeButtonStyle.up = skin.getDrawable("closebutton");
 		closeButtonStyle.over = skin.getDrawable("closebuttonover");
@@ -113,6 +117,7 @@ public class SandboxTabletop extends GFramework
 		skin.add("chatlabelstyle", chatLabelStyle);
 		skin.add("textbuttonstyle", textButtonStyle);
 		skin.add("windowstyle", windowStyle);
+		skin.add("scrollpanestyle", scrollPaneStyle);
 		skin.add("closebuttonstyle", closeButtonStyle);
 		skin.add("menubuttonstyle", menuButtonStyle);
 		skin.add("chattextfieldstyle", chatTextFieldStyle);
