@@ -77,13 +77,14 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		});
 		chatTextField.setMessageText(Gdx.app.getType() == Application.ApplicationType.Android ? "Tap here to chat..." : "Press T to chat...");
 		chatTextField.setMaxLength(256);
+		chatTextField.setFocusTraversal(false);
 		// Add a listener so that we can send chat on enter key
 		chatTextField.addListener(new InputListener()
 		{
 			@Override
 			public boolean keyTyped(InputEvent event, char character)
 			{
-				if (event.getKeyCode() == Input.Keys.ENTER && !chatTextField.getText().isEmpty())
+				if ((character == '\r' || character == '\n') && !chatTextField.getText().isEmpty())
 				{
 					client.send(new Chat(user, "<" + user.username + "> " + chatTextField.getText(), false));
 					chatTextField.setText("");
@@ -101,6 +102,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			{
 				chatPopup.setVisible(!focused);
 				chatHistoryScrollPane.setVisible(focused);
+				Gdx.input.setOnscreenKeyboardVisible(focused);
 			}
 		});
 		chatPopup.columnAlign(Align.left);
