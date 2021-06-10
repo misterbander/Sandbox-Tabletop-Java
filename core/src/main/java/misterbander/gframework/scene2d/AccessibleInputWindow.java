@@ -22,7 +22,7 @@ public abstract class AccessibleInputWindow extends Window
 	private final Vector2 prevWindowPos = new Vector2();
 	private final Vector2 windowScreenPos = new Vector2();
 	private final Vector2 textFieldScreenPos = new Vector2();
-	private int prevScreenHeight = Gdx.graphics.getHeight();
+	private int screenHeight = Gdx.graphics.getHeight();
 	private boolean shouldShift = false;
 	
 	public AccessibleInputWindow(String title, Skin skin, String styleName)
@@ -37,8 +37,8 @@ public abstract class AccessibleInputWindow extends Window
 			@Override
 			public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused)
 			{
-				if (focused && shouldShift)
-					adjustPosition(prevScreenHeight);
+				if (focused)
+					adjustPosition(screenHeight);
 			}
 		});
 	}
@@ -48,7 +48,7 @@ public abstract class AccessibleInputWindow extends Window
 		Stage stage = getStage();
 		if (stage == null || stage.getKeyboardFocus() == null || !(stage.getKeyboardFocus() instanceof MBTextField))
 			return;
-		prevScreenHeight = screenHeight;
+		this.screenHeight = screenHeight;
 		MBTextField focusedTextField = (MBTextField)stage.getKeyboardFocus();
 		float x = getX(), y = getY();
 		stage.stageToScreenCoordinates(windowScreenPos.set(x, y));
