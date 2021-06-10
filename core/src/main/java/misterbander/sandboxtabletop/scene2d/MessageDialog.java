@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Null;
 
+import misterbander.gframework.util.TextUtils;
 import misterbander.sandboxtabletop.SandboxTabletopScreen;
 
 /**
@@ -62,7 +63,7 @@ public class MessageDialog extends SandboxTabletopWindow
 	{
 		setVisible(true);
 		getTitleLabel().setText(title);
-		messageLabel.setText(message);
+		messageLabel.setText(TextUtils.wrap(messageLabel.getStyle().font, message, 800));
 		textButton.setText(buttonText);
 		this.closeAction = closeAction;
 		this.buttonAction = buttonAction;
