@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.User;
@@ -19,7 +18,6 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 {
 	private final ServerSocket serverSocket;
 	private final Array<Connection> connections = new Array<>();
-	
 	private final ObjectMap<Connection, User> connectionUserMap = new ObjectMap<>();
 	
 	public static void main(String[] args) throws IOException
@@ -87,6 +85,7 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	public void connectionClosed(Connection connection)
 	{
 		System.out.println("[SandboxTabletopServer | INFO] " + connection.remoteAddress + " disconnected");
+		connections.removeValue(connection, true);
 		User user = connectionUserMap.remove(connection);
 		if (user != null)
 			System.out.println("[SandboxTabletopServer | INFO] " + user + " left the game");
