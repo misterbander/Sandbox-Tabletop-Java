@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction;
 import com.badlogic.gdx.scenes.scene2d.actions.RemoveActorAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -25,6 +27,7 @@ import java.io.Serializable;
 
 import misterbander.gframework.scene2d.MBTextField;
 import misterbander.gframework.scene2d.UnfocusListener;
+import misterbander.gframework.util.TextUtils;
 import misterbander.sandboxtabletop.net.Connection;
 import misterbander.sandboxtabletop.net.ConnectionEventListener;
 import misterbander.sandboxtabletop.net.SandboxTabletopClient;
@@ -37,6 +40,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	
 	private final User user;
 	
+	private final ImageButton menuButton = new ImageButton(game.skin, "menubuttonstyle");
 	/** Stores chat history */
 	private final VerticalGroup chatHistory = new VerticalGroup();
 	private final ScrollPane chatHistoryScrollPane = new ScrollPane(chatHistory, game.skin, "scrollpanestyle");
@@ -52,10 +56,9 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		// Set up UI
 		
-		ImageButton menuButton = new ImageButton(game.skin, "menubuttonstyle");
 		MBTextField chatTextField = new MBTextField("", game.skin, "chattextfieldstyle");
 		chatTextField.setMessageText(Gdx.app.getType() == Application.ApplicationType.Android ? "Tap here to chat..." : "Press T to chat...");
-		chatTextField.setMaxLength(128);
+		chatTextField.setMaxLength(256);
 		// Add a listener so that we can send chat on enter key
 		chatTextField.addListener(new InputListener()
 		{
@@ -89,7 +92,6 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		Table table = new Table();
 		table.setFillParent(true);
-		table.setDebug(true, true);
 		table.top();
 		table.add(menuButton).top().pad(16);
 		
@@ -98,9 +100,9 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		chatTable.add(chatTextField);
 		chatTable.row();
 		Stack stack = new Stack();
-		Table chatPopupTable = new Table();
-		chatPopupTable.add(chatPopup).expand().top().left();
-		stack.add(chatPopupTable);
+		Container<VerticalGroup> chatPopupContainer = new Container<>(chatPopup);
+		chatPopupContainer.top().left();
+		stack.add(chatPopupContainer);
 		stack.add(chatHistoryScrollPane);
 		chatTable.add(stack).left();
 		
@@ -128,6 +130,26 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		});
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void resize(int width, int height)
+	{
+		super.resize(width, height);
+		for (Actor actor : chatPopup.getChildren())
+		{
+			Container<Label> chatLabelContainer = (Container<Label>)actor;
+			Label label = chatLabelContainer.getActor();
+			assert label != null;
+			chatLabelContainer.width(getChatTextWidth(label.getStyle().font, label.getText().toString()));
+			chatLabelContainer.invalidateHierarchy();
+		}
+	}
+	
+	private int getChatTextWidth(BitmapFont font, String message)
+	{
+		return (int)Math.min(TextUtils.textSize(font, message).x + 32, uiViewport.getWorldWidth() - menuButton.getWidth() - 64);
+	}
+	
 	/**
 	 * Appends a chat message to the chat history, and adds a chat label that disappears after 5 seconds.
 	 * @param message the message
@@ -136,15 +158,18 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	private void addChatMessage(String message, @Null Color color)
 	{
 		Label chatLabel = new Label(message, game.skin, "chatlabelstyle");
+		Container<Label> chatLabelContainer = new Container<>(chatLabel);
+		chatLabelContainer.width(getChatTextWidth(chatLabel.getStyle().font, message));
+		chatLabel.setWrap(true);
 		if (color != null)
 			chatLabel.setColor(color.cpy());
 		AlphaAction alphaAction = new AlphaAction(); // Action to fade out
 		alphaAction.setAlpha(0);
 		alphaAction.setDuration(1);
 		RemoveActorAction removeActorAction = new RemoveActorAction(); // Action to remove label after fade out
-		removeActorAction.setTarget(chatLabel);
-		chatLabel.addAction(new SequenceAction(new DelayAction(10), alphaAction, removeActorAction));
-		chatPopup.addActor(chatLabel);
+		removeActorAction.setTarget(chatLabelContainer);
+		chatLabelContainer.addAction(new SequenceAction(new DelayAction(10), alphaAction, removeActorAction));
+		chatPopup.addActor(chatLabelContainer);
 		if (chatPopup.getChildren().size == 7) // Maximum 6 children
 		{
 			Actor firstChatPopup = chatPopup.removeActorAt(0, false);
@@ -153,6 +178,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		// Add to history
 		Label chatHistoryLabel = new Label(message, game.skin, "infolabelstyle");
+		chatHistoryLabel.setWrap(true);
 		if (color != null)
 			chatHistoryLabel.setColor(color.cpy());
 		chatHistory.pad(4, 16, 4, 16).space(8);
