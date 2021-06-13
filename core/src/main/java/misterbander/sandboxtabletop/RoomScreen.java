@@ -272,6 +272,14 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		Gdx.app.log("RoomScreen | INFO", "Added " + user.username);
 	}
 	
+	private void removeUser(User user)
+	{
+		User removedUser = otherUsers.remove(user.uuid);
+		assert removedUser != null;
+		removedUser.cursor.remove();
+		Gdx.app.log("RoomScreen | INFO", "Removed " + user.username);
+	}
+	
 	@Override
 	public void render(float delta)
 	{
@@ -315,6 +323,12 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			addChatMessage(event.user.username + " joined the game", Color.YELLOW);
 			if (!event.user.equals(user) && !otherUsers.containsKey(event.user.uuid))
 				addUser(event.user);
+		}
+		else if (object instanceof UserEvent.UserLeaveEvent)
+		{
+			UserEvent.UserLeaveEvent event = (UserEvent.UserLeaveEvent)object;
+			addChatMessage(event.user.username + " left the game", Color.YELLOW);
+			removeUser(event.user);
 		}
 		else if (object instanceof CursorPosition)
 		{

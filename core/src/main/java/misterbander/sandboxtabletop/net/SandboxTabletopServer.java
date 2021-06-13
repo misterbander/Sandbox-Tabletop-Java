@@ -91,7 +91,10 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 		connections.removeValue(connection, true);
 		User user = connectionUserMap.remove(connection);
 		if (user != null)
+		{
 			System.out.println("[SandboxTabletopServer | INFO] " + user + " left the game");
+			broadcast(new UserEvent.UserLeaveEvent(user));
+		}
 	}
 	
 	@Override
