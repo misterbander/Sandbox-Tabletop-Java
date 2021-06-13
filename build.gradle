@@ -3,8 +3,8 @@ buildscript {
 		mavenLocal()
 		mavenCentral()
 		google()
+		gradlePluginPortal()
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-		jcenter()
 	}
 	dependencies {
 		classpath "com.android.tools.build:gradle:$androidPluginVersion"
@@ -30,9 +30,9 @@ subprojects {
 	repositories {
 		mavenLocal()
 		mavenCentral()
+		gradlePluginPortal()
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://jitpack.io' }
-		jcenter()
 	}
 }
 
