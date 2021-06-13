@@ -33,42 +33,56 @@ buttonover
   index: -1
 chatbackground
   rotate: false
-  xy: 162, 98
+  xy: 162, 62
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebutton
   rotate: false
-  xy: 198, 98
+  xy: 198, 62
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebuttondown
   rotate: false
-  xy: 170, 134
+  xy: 206, 134
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebuttonover
   rotate: false
-  xy: 206, 134
+  xy: 198, 98
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+cursorbase
+  rotate: false
+  xy: 162, 98
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+cursorborder
+  rotate: false
+  xy: 170, 134
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 menuicon
   rotate: false
-  xy: 162, 62
+  xy: 138, 26
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 menuicondown
   rotate: false
-  xy: 198, 62
+  xy: 174, 26
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

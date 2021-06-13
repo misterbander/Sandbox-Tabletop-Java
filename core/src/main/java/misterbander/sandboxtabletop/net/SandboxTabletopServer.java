@@ -9,7 +9,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import misterbander.sandboxtabletop.net.model.Chat;
+import misterbander.sandboxtabletop.net.model.CursorPosition;
 import misterbander.sandboxtabletop.net.model.User;
+import misterbander.sandboxtabletop.net.model.UserEvent;
+import misterbander.sandboxtabletop.net.model.UserList;
 
 /**
  * This is the server that can be run separately.
@@ -60,8 +63,8 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	
 	public void broadcast(Serializable object)
 	{
-		for (Connection connection : connections)
-			connection.send(object);
+		for (int i = 0; i < connections.size; i++)
+			connections.get(i).send(object);
 	}
 	
 	/**
@@ -100,7 +103,10 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 			System.out.println("[SandboxTabletopServer | INFO] " + user + " joined the game");
 			connectionUserMap.put(connection, user);
 			
-			broadcast(new Chat(user, user.username + " joined the game", true));
+			// Client state synchronization
+			connection.send(new UserList(connectionUserMap.values().toArray().toArray(User.class)));
+			
+			broadcast(new UserEvent.UserJoinEvent(user));
 		}
 		else if (object instanceof Chat)
 		{
@@ -108,5 +114,7 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 			System.out.println(chat.message);
 			broadcast(chat);
 		}
+		else if (object instanceof CursorPosition)
+			broadcast(object);
 	}
 }

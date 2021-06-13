@@ -28,7 +28,7 @@ import misterbander.gframework.scene2d.MBTextField;
 public class SandboxTabletop extends GFramework
 {
 	// Fonts
-	public BitmapFont jhengheiui, jhengheiuiMini, jhengheiuiMax;
+	public BitmapFont jhengheiui, jhengheiuiMini, jhengheiuiTiny, jhengheiuiMax;
 	
 	// Skins
 	public final Skin skin = new Skin();
@@ -49,6 +49,8 @@ public class SandboxTabletop extends GFramework
 		jhengheiui = generator.generateFont(generateFontParameter(40));
 		FreeTypeFontGenerator miniGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/msjhl.ttc"));
 		jhengheiuiMini = miniGenerator.generateFont(generateFontParameter(25));
+		FreeTypeFontGenerator tinyGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/msjhl.ttc"));
+		jhengheiuiTiny = tinyGenerator.generateFont(generateFontParameter(15));
 		FreeTypeFontGenerator maxGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/msjhl.ttc"));
 		jhengheiuiMax = maxGenerator.generateFont(generateFontParameter(50));
 		
@@ -70,6 +72,12 @@ public class SandboxTabletop extends GFramework
 		chatLabelStyle.background.setLeftWidth(16);
 		chatLabelStyle.background.setRightWidth(16);
 		chatLabelStyle.background.setBottomHeight(4);
+		Label.LabelStyle usernameTagLabelStyle = new Label.LabelStyle(jhengheiuiTiny, Color.WHITE);
+		usernameTagLabelStyle.background = skin.newDrawable("chatbackground");
+		usernameTagLabelStyle.background.setTopHeight(2);
+		usernameTagLabelStyle.background.setLeftWidth(12);
+		usernameTagLabelStyle.background.setRightWidth(12);
+		usernameTagLabelStyle.background.setBottomHeight(2);
 		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
 		textButtonStyle.up = skin.getDrawable("button");
 		textButtonStyle.over = skin.getDrawable("buttonover");
@@ -115,6 +123,7 @@ public class SandboxTabletop extends GFramework
 		
 		skin.add("infolabelstyle", infoLabelStyle);
 		skin.add("chatlabelstyle", chatLabelStyle);
+		skin.add("usernametaglabelstyle", usernameTagLabelStyle);
 		skin.add("textbuttonstyle", textButtonStyle);
 		skin.add("windowstyle", windowStyle);
 		skin.add("scrollpanestyle", scrollPaneStyle);

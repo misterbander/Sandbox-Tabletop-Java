@@ -52,7 +52,7 @@ public class Connection extends Thread
 	 * Sends an object to the remote end.
 	 * @param object the object to be sent
 	 */
-	public void send(Serializable object)
+	public synchronized void send(Serializable object)
 	{
 		try
 		{

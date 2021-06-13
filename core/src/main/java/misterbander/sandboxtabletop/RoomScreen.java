@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -22,21 +23,30 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import misterbander.gframework.scene2d.MBTextField;
-import misterbander.gframework.scene2d.UnfocusListener;
+import misterbander.gframework.util.MathUtils;
 import misterbander.gframework.util.TextUtils;
 import misterbander.sandboxtabletop.net.Connection;
 import misterbander.sandboxtabletop.net.ConnectionEventListener;
 import misterbander.sandboxtabletop.net.SandboxTabletopClient;
 import misterbander.sandboxtabletop.net.model.Chat;
+import misterbander.sandboxtabletop.net.model.CursorPosition;
 import misterbander.sandboxtabletop.net.model.User;
+import misterbander.sandboxtabletop.net.model.UserEvent;
+import misterbander.sandboxtabletop.net.model.UserList;
+import misterbander.sandboxtabletop.scene2d.Cursor;
 
 public class RoomScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
+	private static final float TICK_TIME = 1/20F;
+	
 	private final SandboxTabletopClient client;
+	private float tick;
 	
 	private final User user;
 	
@@ -48,12 +58,18 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	/** Stores recent chat popup labels that disappear after 5 seconds. */
 	private final VerticalGroup chatPopup = new VerticalGroup();
 	
+	private final ObjectMap<UUID, User> otherUsers = new ObjectMap<>();
+	
+	private final CursorPosition cursorPosition;
+	
 	public RoomScreen(SandboxTabletop game, SandboxTabletopClient client, User user)
 	{
 		super(game);
 		this.client = client;
 		
 		this.user = user;
+		
+		cursorPosition = new CursorPosition(user.uuid, 640, 360);
 		
 		// Set up UI
 		
@@ -159,6 +175,30 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		});
 	}
 	
+	@Override
+	public void show()
+	{
+		super.show();
+		
+		// Set a random cursor color for each player using the hash code of each user's uuid
+		Pixmap cursorBorderPixmap = new Pixmap(Gdx.files.internal("textures/cursorborder.png"));
+		Pixmap cursorBasePixmap = new Pixmap(Gdx.files.internal("textures/cursorbase.png"));
+		Color userColor = User.getUserColor(user);
+		for (int i = 0; i < cursorBasePixmap.getWidth(); i++)
+		{
+			for (int j = 0; j < cursorBasePixmap.getHeight(); j++)
+			{
+				Color color = new Color(cursorBasePixmap.getPixel(i, j));
+				cursorBasePixmap.setColor(color.mul(userColor));
+				cursorBasePixmap.drawPixel(i, j);
+			}
+		}
+		cursorBorderPixmap.drawPixmap(cursorBasePixmap, 0, 0);
+		Gdx.graphics.setCursor(Gdx.graphics.newCursor(cursorBorderPixmap, 3, 0));
+		cursorBorderPixmap.dispose();
+		cursorBasePixmap.dispose();
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void resize(int width, int height)
@@ -216,6 +256,30 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		chatHistoryScrollPane.setScrollPercentY(100);
 	}
 	
+	private void addUser(User user)
+	{
+		otherUsers.put(user.uuid, user);
+		Cursor cursor = new Cursor(user, game.skin, "cursorbase", "cursorborder");
+		user.cursor = cursor;
+		stage.addActor(cursor);
+		Gdx.app.log("RoomScreen | INFO", "Added " + user.username);
+	}
+	
+	@Override
+	public void render(float delta)
+	{
+		super.render(delta);
+		tick += delta;
+		if (tick > TICK_TIME)
+		{
+			tick = 0;
+			MathUtils.TEMP_VEC.set(Gdx.input.getX(), Gdx.input.getY());
+			stage.screenToStageCoordinates(MathUtils.TEMP_VEC);
+			if (cursorPosition.set(MathUtils.TEMP_VEC.x, MathUtils.TEMP_VEC.y))
+				client.send(cursorPosition);
+		}
+	}
+	
 	@Override
 	public void objectReceived(Connection connection, Serializable object)
 	{
@@ -224,6 +288,29 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			Chat chat = (Chat)object;
 			Gdx.app.log("SandboxTabletopClient | CHAT", chat.message);
 			addChatMessage(chat.message, chat.isSystemMessage ? Color.YELLOW : null);
+		}
+		else if (object instanceof UserList)
+		{
+			User[] users = ((UserList)object).users;
+			for (User user : users)
+			{
+				if (!user.equals(this.user))
+					addUser(user);
+			}
+		}
+		else if (object instanceof UserEvent.UserJoinEvent)
+		{
+			UserEvent.UserJoinEvent event = (UserEvent.UserJoinEvent)object;
+			addChatMessage(event.user.username + " joined the game", Color.YELLOW);
+			if (!event.user.equals(user) && !otherUsers.containsKey(event.user.uuid))
+				addUser(event.user);
+		}
+		else if (object instanceof CursorPosition)
+		{
+			CursorPosition cursorPosition = (CursorPosition)object;
+			User user = otherUsers.get(cursorPosition.uuid);
+			if (user != null)
+				user.cursor.setTargetPosition(cursorPosition.getX() - 3, cursorPosition.getY() - 32);
 		}
 	}
 }
