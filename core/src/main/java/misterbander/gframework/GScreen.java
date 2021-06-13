@@ -61,6 +61,7 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	@Override
 	public void resize(int width, int height)
 	{
+		camera.position.set(viewport.getMinWorldWidth()/2, viewport.getMinWorldHeight()/2, 0);
 		viewport.update(width, height, false);
 		uiViewport.update(width, height, true);
 		Gdx.graphics.requestRendering();
