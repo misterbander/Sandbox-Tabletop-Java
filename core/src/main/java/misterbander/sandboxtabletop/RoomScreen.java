@@ -40,6 +40,7 @@ import misterbander.sandboxtabletop.net.model.User;
 import misterbander.sandboxtabletop.net.model.UserEvent;
 import misterbander.sandboxtabletop.net.model.UserList;
 import misterbander.sandboxtabletop.scene2d.Cursor;
+import misterbander.sandboxtabletop.scene2d.Debug;
 
 public class RoomScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
@@ -175,6 +176,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			}
 		});
 		
+		stage.addActor(new Debug(viewport, game.getShapeDrawer()));
 		if (Gdx.app.getType() != Application.ApplicationType.Desktop)
 		{
 			myCursor = new Cursor(user, game.skin, true);
