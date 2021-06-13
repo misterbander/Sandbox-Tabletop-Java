@@ -43,7 +43,7 @@ import misterbander.sandboxtabletop.scene2d.Cursor;
 
 public class RoomScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
-	private static final float TICK_TIME = 1/20F;
+	private static final float TICK_TIME = 1/40F;
 	
 	private final SandboxTabletopClient client;
 	private float tick;
