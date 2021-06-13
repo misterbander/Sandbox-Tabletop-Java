@@ -6,35 +6,36 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Null;
 
 import misterbander.sandboxtabletop.net.model.User;
 
 public class Cursor extends SmoothMovable
 {
-	private final User user;
 	private final Color color;
 	private final TextureRegion base, border;
-	private final Label usernameLabel;
+	private final @Null Label usernameLabel;
 	
-	public Cursor(User user, Skin skin, String baseRegionName, String borderRegionName)
+	public Cursor(User user, Skin skin, boolean noLabel)
 	{
-		this.user = user;
 		color = User.getUserColor(user);
-		base = skin.getRegion(baseRegionName);
-		border = skin.getRegion(borderRegionName);
+		base = skin.getRegion("cursorbase");
+		border = skin.getRegion("cursorborder");
 		setSize(base.getRegionWidth(), base.getRegionHeight());
 		setPosition(637, 328);
 		setTargetPosition(637, 328);
 		
-		usernameLabel = new Label(user.username, skin, "usernametaglabelstyle");
-		usernameLabel.pack();
+		usernameLabel = noLabel ? null : new Label(user.username, skin, "usernametaglabelstyle");
+		if (usernameLabel != null)
+			usernameLabel.pack();
 	}
 	
 	@Override
 	public void act(float delta)
 	{
 		super.act(delta);
-		usernameLabel.setPosition(getX() - 3 + getWidth()/2, getY(), Align.topLeft);
+		if (usernameLabel != null)
+			usernameLabel.setPosition(getX() - 3 + getWidth()/2, getY(), Align.topLeft);
 	}
 	
 	@Override
@@ -45,6 +46,7 @@ public class Cursor extends SmoothMovable
 		batch.setColor(color);
 		batch.draw(base, getX(), getY());
 		batch.setColor(Color.WHITE);
-		usernameLabel.draw(batch, parentAlpha);
+		if (usernameLabel != null)
+			usernameLabel.draw(batch, parentAlpha);
 	}
 }

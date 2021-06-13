@@ -60,6 +60,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	
 	private final ObjectMap<UUID, User> otherUsers = new ObjectMap<>();
 	
+	private @Null Cursor myCursor;
 	private final CursorPosition cursorPosition;
 	
 	public RoomScreen(SandboxTabletop game, SandboxTabletopClient client, User user)
@@ -173,6 +174,12 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				return false;
 			}
 		});
+		
+		if (Gdx.app.getType() != Application.ApplicationType.Desktop)
+		{
+			myCursor = new Cursor(user, game.skin, true);
+			stage.addActor(myCursor);
+		}
 	}
 	
 	@Override
@@ -259,7 +266,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	private void addUser(User user)
 	{
 		otherUsers.put(user.uuid, user);
-		Cursor cursor = new Cursor(user, game.skin, "cursorbase", "cursorborder");
+		Cursor cursor = new Cursor(user, game.skin, false);
 		user.cursor = cursor;
 		stage.addActor(cursor);
 		Gdx.app.log("RoomScreen | INFO", "Added " + user.username);
@@ -276,7 +283,11 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			MathUtils.TEMP_VEC.set(Gdx.input.getX(), Gdx.input.getY());
 			stage.screenToStageCoordinates(MathUtils.TEMP_VEC);
 			if (cursorPosition.set(MathUtils.TEMP_VEC.x, MathUtils.TEMP_VEC.y))
+			{
 				client.send(cursorPosition);
+				if (myCursor != null)
+					myCursor.setTargetPosition(cursorPosition.getX() - 3, cursorPosition.getY() - 32);
+			}
 		}
 	}
 	
