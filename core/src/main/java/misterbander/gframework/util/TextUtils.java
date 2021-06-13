@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.StringBuilder;
 public class TextUtils
 {
 	private static final GlyphLayout GLYPH = new GlyphLayout();
-	private static final Vector2 TEMP_VEC = new Vector2();
 	
 	/**
 	 * Returns the dimensions of a text in pixels based on the BitmapFont.
@@ -18,8 +17,8 @@ public class TextUtils
 	public static Vector2 textSize(BitmapFont font, String text)
 	{
 		GLYPH.setText(font, text);
-		TEMP_VEC.set(GLYPH.width, GLYPH.height);
-		return TEMP_VEC;
+		MathUtils.TEMP_VEC.set(GLYPH.width, GLYPH.height);
+		return MathUtils.TEMP_VEC;
 	}
 	
 	/**
