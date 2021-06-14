@@ -302,6 +302,19 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	}
 	
 	@Override
+	public void connectionClosed(Connection connection, Exception e)
+	{
+		MenuScreen menuScreen = new MenuScreen(game);
+		game.setScreen(menuScreen);
+		Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
+		if (!client.isDisconnectIntentional())
+		{
+			String errorMessage = e.toString() + (e.getCause() != null ? "\n" + e.getCause() : "");
+			menuScreen.connectingDialog.show("Disconnected", "Connection reset".equals(e.getMessage()) ? "Server closed." : errorMessage, "OK", null);
+		}
+	}
+	
+	@Override
 	public void objectReceived(Connection connection, Serializable object)
 	{
 		if (object instanceof Chat)

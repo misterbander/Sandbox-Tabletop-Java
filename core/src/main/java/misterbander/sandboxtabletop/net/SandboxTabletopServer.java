@@ -44,9 +44,9 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	public void run()
 	{
 		System.out.println("[SandboxTabletopServer | INFO] Ready to accept connections");
-		while (true) // Repeat forever to accept incoming connections
+		try
 		{
-			try
+			while (true) // Repeat forever to accept incoming connections
 			{
 				Socket socket = serverSocket.accept();
 				Connection connection = new Connection(this, socket);
@@ -54,10 +54,10 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 				connectionOpened(connection);
 				connections.add(connection);
 			}
-			catch (Exception e)
-			{
-				exceptionOccurred(null, e);
-			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
 		}
 	}
 	
@@ -85,7 +85,7 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	}
 	
 	@Override
-	public void connectionClosed(Connection connection)
+	public void connectionClosed(Connection connection, Exception e)
 	{
 		System.out.println("[SandboxTabletopServer | INFO] " + connection.remoteAddress + " disconnected");
 		connections.removeValue(connection, true);

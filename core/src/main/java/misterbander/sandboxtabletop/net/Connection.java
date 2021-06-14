@@ -20,8 +20,6 @@ public class Connection extends Thread
 	private final ObjectInputStream incoming;
 	private volatile ConnectionEventListener listener;
 	
-	private volatile boolean isConnected = true;
-	
 	public Connection(ConnectionEventListener listener, Socket socket) throws IOException
 	{
 		localAddress = socket.getLocalAddress();
@@ -34,17 +32,18 @@ public class Connection extends Thread
 	@Override
 	public void run()
 	{
-		while (isConnected) // Infinite loop to handle receiving objects from remote end when they arrive
+		try
 		{
-			try
+			while (true) // Infinite loop to handle receiving objects from remote end when they arrive
 			{
 				Serializable incomingObject = (Serializable)incoming.readObject();
 				listener.objectReceived(this, incomingObject);
 			}
-			catch (Exception e)
-			{
-				listener.exceptionOccurred(this, e);
-			}
+		}
+		catch (IOException | ClassNotFoundException e) // An error occured, or the connection got disconnected
+		{
+			e.printStackTrace();
+			listener.connectionClosed(this, e);
 		}
 	}
 	
@@ -62,13 +61,8 @@ public class Connection extends Thread
 		}
 		catch (Exception e)
 		{
-			listener.exceptionOccurred(this, e);
+			e.printStackTrace();
 		}
-	}
-	
-	public boolean isConnected()
-	{
-		return isConnected;
 	}
 	
 	public void setConnectionEventListener(ConnectionEventListener listener)
@@ -81,10 +75,8 @@ public class Connection extends Thread
 	 */
 	public void close()
 	{
-		listener.connectionClosed(this);
 		try
 		{
-			isConnected = false;
 			outgoing.close();
 			incoming.close();
 		}
