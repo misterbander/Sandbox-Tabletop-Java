@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import misterbander.sandboxtabletop.MenuScreen;
+
 /**
  * This is the client class that will handle connecting to the server, as well as sending and receiving objects to and
  * from the server.
@@ -20,6 +22,7 @@ public class SandboxTabletopClient extends Thread implements ConnectionEventList
 	private final int port;
 	private @Null Connection connection;
 	private volatile boolean isConnectionCancelled;
+	private volatile boolean isDisconnectIntentional;
 	
 	/**
 	 * Creates a client that connects to {@code hostAddress} on {@code port}. Creating the client does not immediately
@@ -54,12 +57,12 @@ public class SandboxTabletopClient extends Thread implements ConnectionEventList
 			socket.connect(new InetSocketAddress(hostAddress, port));
 			connection = new Connection(this, socket);
 			connection.start();
-			Gdx.app.postRunnable(() -> connectionOpened(connection));
+			connectionOpened(connection);
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
-			if (!isConnectionCancelled)
-				Gdx.app.postRunnable(() -> exceptionOccurred(null, e));
+			if (!isConnectionCancelled) // We are in menu screen and we failed to connect to server
+				Gdx.app.postRunnable(() -> ((MenuScreen)listener).connectionFailed(e));
 		}
 	}
 	
@@ -71,6 +74,11 @@ public class SandboxTabletopClient extends Thread implements ConnectionEventList
 	public void setConnectionEventListener(ConnectionEventListener listener)
 	{
 		this.listener = listener;
+	}
+	
+	public boolean isDisconnectIntentional()
+	{
+		return isDisconnectIntentional;
 	}
 	
 	public void send(Serializable object)
@@ -86,9 +94,12 @@ public class SandboxTabletopClient extends Thread implements ConnectionEventList
 		{
 			Gdx.app.log("SandboxTabletopClient | INFO", "Cancelled connection to " + hostAddress);
 			isConnectionCancelled = true;
-			return;
 		}
-		connection.close();
+		else
+		{
+			isDisconnectIntentional = true;
+			connection.close();
+		}
 	}
 	
 	@Override
@@ -98,20 +109,14 @@ public class SandboxTabletopClient extends Thread implements ConnectionEventList
 	}
 	
 	@Override
-	public void connectionClosed(Connection connection)
+	public void connectionClosed(Connection connection, Exception e)
 	{
-		Gdx.app.postRunnable(() -> listener.connectionClosed(connection));
+		Gdx.app.postRunnable(() -> listener.connectionClosed(connection, e));
 	}
 	
 	@Override
 	public void objectReceived(Connection connection, Serializable object)
 	{
 		Gdx.app.postRunnable(() -> listener.objectReceived(connection, object));
-	}
-	
-	@Override
-	public void exceptionOccurred(@Null Connection connection, Exception e)
-	{
-		Gdx.app.postRunnable(() -> listener.exceptionOccurred(connection, e));
 	}
 }

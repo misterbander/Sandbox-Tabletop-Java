@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Null;
 
+import java.io.IOException;
+
 import misterbander.sandboxtabletop.net.Connection;
 import misterbander.sandboxtabletop.net.ConnectionEventListener;
 import misterbander.sandboxtabletop.net.SandboxTabletopClient;
@@ -94,24 +96,17 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 	}
 	
 	@Override
-	public void connectionClosed(Connection connection)
+	public void connectionClosed(Connection connection, Exception e)
 	{
 		Gdx.app.log("SandboxTabletopClient | INFO", "Disconnected from " + connection.remoteAddress);
 		client = null;
 	}
 	
-	@Override
-	public void exceptionOccurred(@Null Connection connection, Exception e)
+	public void connectionFailed(IOException e)
 	{
-		assert client != null;
-		if (connection == null)
-		{
-			// Exception occurred because cannot connect to remote server
-			connectingDialog.show("Connection Failed", "Failed to connect to server.\n" + e.toString()
-					+ (e.getCause() != null ? "\n" + e.getCause() : ""), "OK", connectWindow::show);
-			e.printStackTrace();
-		}
-		else
-			ConnectionEventListener.super.exceptionOccurred(connection, e);
+		// Exception occurred because cannot connect to remote server
+		connectingDialog.show("Connection Failed", "Failed to connect to server.\n" + e.toString()
+				+ (e.getCause() != null ? "\n" + e.getCause() : ""), "OK", connectWindow::show);
+		e.printStackTrace();
 	}
 }
