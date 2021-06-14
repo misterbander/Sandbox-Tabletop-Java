@@ -64,7 +64,7 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 		uiStage.addActor(connectWindow);
 		uiStage.addActor(connectingDialog);
 		
-		accessibleInputWindows.add(connectWindow);
+		keyboardHeightObservers.add(connectWindow);
 	}
 	
 	@Override

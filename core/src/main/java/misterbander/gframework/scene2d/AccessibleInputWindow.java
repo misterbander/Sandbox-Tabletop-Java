@@ -17,12 +17,12 @@ import misterbander.gframework.GScreen;
  * For this to work, a layout size listener should be attached in Android that calls {@code GFramework::notifySizeChange()},
  * and the window must be added to the {@link GScreen}'s accessible window list.
  */
-public abstract class AccessibleInputWindow extends Window
+public abstract class AccessibleInputWindow extends Window implements KeyboardHeightObserver
 {
 	private final Vector2 prevWindowPos = new Vector2();
 	private final Vector2 windowScreenPos = new Vector2();
 	private final Vector2 textFieldScreenPos = new Vector2();
-	private int screenHeight = Gdx.graphics.getHeight();
+	private int keyboardHeight;
 	private boolean shouldShift = false;
 	
 	public AccessibleInputWindow(String title, Skin skin, String styleName)
@@ -38,26 +38,27 @@ public abstract class AccessibleInputWindow extends Window
 			public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused)
 			{
 				if (focused)
-					adjustPosition(screenHeight);
+					adjustPosition(keyboardHeight);
 			}
 		});
 	}
 	
-	public void attemptAdjustPositionOnLayoutSizeChange(int screenHeight)
+	@Override
+	public void onKeyboardHeightChanged(int height, int orientation)
 	{
 		Stage stage = getStage();
 		if (stage == null || stage.getKeyboardFocus() == null || !(stage.getKeyboardFocus() instanceof MBTextField))
 			return;
-		this.screenHeight = screenHeight;
+		keyboardHeight = height;
 		MBTextField focusedTextField = (MBTextField)stage.getKeyboardFocus();
 		float x = getX(), y = getY();
 		stage.stageToScreenCoordinates(windowScreenPos.set(x, y));
 		localToScreenCoordinates(textFieldScreenPos.set(focusedTextField.getX(), focusedTextField.getY()));
 		
-		if (screenHeight < Gdx.graphics.getHeight() - 160) // Keyboard up, 160 is an arbitrary keyboard height
+		if (height > 0) // Keyboard is up
 		{
 			prevWindowPos.set(x, y);
-			if (adjustPosition(screenHeight))
+			if (adjustPosition(height))
 				shouldShift = true;
 		}
 		else if (shouldShift)
@@ -68,7 +69,7 @@ public abstract class AccessibleInputWindow extends Window
 		Gdx.graphics.requestRendering();
 	}
 	
-	private boolean adjustPosition(int screenHeight)
+	private boolean adjustPosition(int height)
 	{
 		Stage stage = getStage();
 		if (stage == null || stage.getKeyboardFocus() == null || !(stage.getKeyboardFocus() instanceof MBTextField))
@@ -78,6 +79,7 @@ public abstract class AccessibleInputWindow extends Window
 		stage.stageToScreenCoordinates(windowScreenPos.set(x, y));
 		localToScreenCoordinates(textFieldScreenPos.set(focusedTextField.getX(), focusedTextField.getY()));
 		
+		int screenHeight = Gdx.graphics.getHeight() - height;
 		if (textFieldScreenPos.y > screenHeight) // TextField is off screen
 		{
 			float diff = textFieldScreenPos.y - screenHeight;
