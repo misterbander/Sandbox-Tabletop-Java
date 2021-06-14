@@ -30,12 +30,12 @@ import space.earlygrey.shapedrawer.ShapeDrawer;
  */
 public class MenuScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
+	public @Null SandboxTabletopClient client;
+	
 	private final Color backgroundAccentColor = new Color(0xBA00A1FF);
 	
 	public final ConnectWindow connectWindow = new ConnectWindow(this);
 	public final MessageDialog connectingDialog = new MessageDialog(this, "", true);
-	
-	public @Null SandboxTabletopClient client;
 	
 	public MenuScreen(SandboxTabletop game)
 	{

@@ -41,12 +41,13 @@ import misterbander.sandboxtabletop.net.model.UserEvent;
 import misterbander.sandboxtabletop.net.model.UserList;
 import misterbander.sandboxtabletop.scene2d.Cursor;
 import misterbander.sandboxtabletop.scene2d.Debug;
+import misterbander.sandboxtabletop.scene2d.GameMenuWindow;
 
 public class RoomScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
 	private static final float TICK_TIME = 1/40F;
 	
-	private final SandboxTabletopClient client;
+	public final SandboxTabletopClient client;
 	private float tick;
 	
 	private final User user;
@@ -73,6 +74,8 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		cursorPosition = new CursorPosition(user.uuid, 640, 360);
 		
+		GameMenuWindow gameMenuWindow = new GameMenuWindow(this);
+		
 		// Set up UI
 		
 		Actor fallbackActor = new Actor()
@@ -93,6 +96,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				return true;
 			}
 		});
+		menuButton.addListener(new ChangeListener(gameMenuWindow::show));
 		chatTextField.setMessageText(Gdx.app.getType() == Application.ApplicationType.Android ? "Tap here to chat..." : "Press T to chat...");
 		chatTextField.setMaxLength(256);
 		chatTextField.setFocusTraversal(false);
@@ -175,6 +179,8 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				return false;
 			}
 		});
+		
+		uiStage.addActor(gameMenuWindow);
 		
 		stage.addActor(new Debug(viewport, game.getShapeDrawer()));
 		if (Gdx.app.getType() != Application.ApplicationType.Desktop)
