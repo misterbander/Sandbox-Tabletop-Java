@@ -70,5 +70,7 @@ public abstract class GFramework extends Game
 	{
 		super.dispose();
 		batch.dispose();
+		shapeRenderer.dispose();
+		assetManager.dispose();
 	}
 }
