@@ -1,7 +1,7 @@
 package misterbander.sandboxtabletop;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -29,8 +29,6 @@ import misterbander.sandboxtabletop.scene2d.MessageDialog;
 public class MenuScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
 	public @Null SandboxTabletopClient client;
-	
-	private final Color backgroundAccentColor = new Color(0xBA00A1FF);
 	
 	public final ConnectWindow connectWindow = new ConnectWindow(this);
 	public final MessageDialog connectingDialog = new MessageDialog(this, "", true);
@@ -70,9 +68,10 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 	@Override
 	public void clearScreen()
 	{
-		super.clearScreen();
+		Gdx.gl.glClearColor(SandboxTabletop.BACKGROUND_COLOR.r, SandboxTabletop.BACKGROUND_COLOR.g, SandboxTabletop.BACKGROUND_COLOR.b, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		game.getBatch().begin();
-		game.getShapeDrawer().setColor(backgroundAccentColor);
+		game.getShapeDrawer().setColor(SandboxTabletop.ACCENT_COLOR);
 		game.getShapeDrawer().filledRectangle(80, 96, viewport.getWorldWidth() - 96, viewport.getWorldHeight() - 96, 4*MathUtils.degRad);
 		game.getBatch().end();
 	}
