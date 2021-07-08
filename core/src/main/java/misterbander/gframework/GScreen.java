@@ -3,6 +3,7 @@ package misterbander.gframework;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -72,21 +73,23 @@ public abstract class GScreen<T extends GFramework> extends ScreenAdapter
 	public void render(float delta)
 	{
 		clearScreen();
-		
+		renderStage(camera, stage, delta);
+		renderStage(uiCamera, uiStage, delta);
+		updateWorld();
+	}
+	
+	protected void renderStage(Camera camera, Stage stage, float delta)
+	{
 		camera.update();
 		game.getBatch().setProjectionMatrix(camera.combined);
 		game.getShapeRenderer().setProjectionMatrix(camera.combined);
 		game.getShapeDrawer().update();
 		stage.act(delta);
 		stage.draw();
-		
-		uiCamera.update();
-		game.getBatch().setProjectionMatrix(uiCamera.combined);
-		game.getShapeRenderer().setProjectionMatrix(uiCamera.combined);
-		game.getShapeDrawer().update();
-		uiStage.act(delta);
-		uiStage.draw();
-		
+	}
+	
+	protected void updateWorld()
+	{
 		for (GObject<T> gObject : scheduledAddingGObjects)
 			spawnGObject(gObject);
 		scheduledAddingGObjects.clear();

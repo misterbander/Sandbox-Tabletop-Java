@@ -3,7 +3,6 @@ package misterbander.sandboxtabletop;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -18,7 +17,6 @@ import misterbander.sandboxtabletop.net.SandboxTabletopClient;
 import misterbander.sandboxtabletop.net.model.User;
 import misterbander.sandboxtabletop.scene2d.ConnectWindow;
 import misterbander.sandboxtabletop.scene2d.MessageDialog;
-import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /**
  * This is the menu screen. There will be two buttons "Play" and "Quit". Clicking "Play" brings up a window where you
@@ -73,12 +71,10 @@ public class MenuScreen extends SandboxTabletopScreen implements ConnectionEvent
 	public void clearScreen()
 	{
 		super.clearScreen();
-		PolygonSpriteBatch batch = game.getBatch();
-		ShapeDrawer shapeDrawer = game.getShapeDrawer();
-		batch.begin();
-		shapeDrawer.setColor(backgroundAccentColor);
-		shapeDrawer.filledRectangle(80, 96, viewport.getWorldWidth() - 96, viewport.getWorldHeight() - 96, 4*MathUtils.degRad);
-		batch.end();
+		game.getBatch().begin();
+		game.getShapeDrawer().setColor(backgroundAccentColor);
+		game.getShapeDrawer().filledRectangle(80, 96, viewport.getWorldWidth() - 96, viewport.getWorldHeight() - 96, 4*MathUtils.degRad);
+		game.getBatch().end();
 	}
 	
 	@Override
