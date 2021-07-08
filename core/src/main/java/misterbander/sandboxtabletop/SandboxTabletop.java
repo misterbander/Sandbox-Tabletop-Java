@@ -27,6 +27,9 @@ import misterbander.gframework.scene2d.MBTextField;
  */
 public class SandboxTabletop extends GFramework
 {
+	public static final Color BACKGROUND_COLOR = new Color(0x5F1F56FF);
+	public static final Color ACCENT_COLOR = new Color(0x7C2870FF);
+	
 	// Fonts
 	public BitmapFont jhengheiui, jhengheiuiMini, jhengheiuiTiny, jhengheiuiMax;
 	

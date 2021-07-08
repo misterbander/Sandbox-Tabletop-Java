@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -59,6 +60,8 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	private final ScrollPane chatHistoryScrollPane = new ScrollPane(chatHistory, game.skin, "scrollpanestyle");
 	/** Stores recent chat popup labels that disappear after 5 seconds. */
 	private final VerticalGroup chatPopup = new VerticalGroup();
+	
+	private final ShaderProgram shader = new ShaderProgram(Gdx.files.internal("shaders/passthrough.vsh").readString(), Gdx.files.internal("shaders/vignette.fsh").readString());
 	
 	private final ObjectMap<UUID, User> otherUsers = new ObjectMap<>();
 	
@@ -188,6 +191,9 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			myCursor = new Cursor(user, game.skin, true);
 			stage.addActor(myCursor);
 		}
+		
+		if (!shader.isCompiled())
+			Gdx.app.log("RoomScreen | ERROR", shader.getLog());
 	}
 	
 	@Override
@@ -227,6 +233,8 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			chatLabelContainer.width(getChatTextWidth(label.getStyle().font, label.getText().toString()));
 			chatLabelContainer.invalidateHierarchy();
 		}
+		shader.bind();
+		shader.setUniformf("u_resolution", width, height);
 	}
 	
 	private int getChatTextWidth(BitmapFont font, String message)
@@ -291,7 +299,17 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	@Override
 	public void render(float delta)
 	{
-		super.render(delta);
+		clearScreen();
+		game.getBatch().setShader(shader);
+		game.getBatch().begin();
+		game.getShapeDrawer().setColor(SandboxTabletop.BACKGROUND_COLOR);
+		game.getShapeDrawer().filledRectangle(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+		game.getBatch().end();
+		game.getBatch().setShader(null);
+		renderStage(camera, stage, delta);
+		renderStage(uiCamera, uiStage, delta);
+		updateWorld();
+		
 		tick += delta;
 		if (tick > TICK_TIME)
 		{
