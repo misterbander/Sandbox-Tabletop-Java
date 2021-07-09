@@ -37,9 +37,15 @@ import misterbander.sandboxtabletop.net.ConnectionEventListener;
 import misterbander.sandboxtabletop.net.SandboxTabletopClient;
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.CursorPosition;
+import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.ServerCard;
+import misterbander.sandboxtabletop.net.model.ServerObject;
+import misterbander.sandboxtabletop.net.model.ServerObjectList;
+import misterbander.sandboxtabletop.net.model.ServerObjectPosition;
 import misterbander.sandboxtabletop.net.model.User;
 import misterbander.sandboxtabletop.net.model.UserEvent;
 import misterbander.sandboxtabletop.net.model.UserList;
+import misterbander.sandboxtabletop.scene2d.Card;
 import misterbander.sandboxtabletop.scene2d.Cursor;
 import misterbander.sandboxtabletop.scene2d.Debug;
 import misterbander.sandboxtabletop.scene2d.GameMenuWindow;
@@ -51,7 +57,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	public final SandboxTabletopClient client;
 	private float tick;
 	
-	private final User user;
+	public final User user;
 	
 	private final ImageButton menuButton = new ImageButton(game.skin, "menubuttonstyle");
 	private final MBTextField chatTextField = new MBTextField("", game.skin, "chattextfieldstyle");
@@ -64,9 +70,11 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	private final ShaderProgram shader = new ShaderProgram(Gdx.files.internal("shaders/passthrough.vsh").readString(), Gdx.files.internal("shaders/vignette.fsh").readString());
 	
 	private final ObjectMap<UUID, User> otherUsers = new ObjectMap<>();
-	
 	private @Null Cursor myCursor;
 	private final CursorPosition cursorPosition;
+	public @Null ServerObjectPosition latestServerObjectPosition;
+	
+	private final ObjectMap<UUID, Actor> uuidActorMap = new ObjectMap<>();
 	
 	public RoomScreen(SandboxTabletop game, SandboxTabletopClient client, User user)
 	{
@@ -96,7 +104,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			{
 				uiStage.setKeyboardFocus(null);
 				Gdx.input.setOnscreenKeyboardVisible(false);
-				return true;
+				return false;
 			}
 		});
 		menuButton.addListener(new ChangeListener(gameMenuWindow::show));
@@ -321,6 +329,11 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				client.send(cursorPosition);
 				if (myCursor != null)
 					myCursor.setTargetPosition(cursorPosition.getX() - 3, cursorPosition.getY() - 32);
+				if (latestServerObjectPosition != null)
+				{
+					client.send(latestServerObjectPosition);
+					latestServerObjectPosition = null;
+				}
 			}
 		}
 	}
@@ -369,12 +382,48 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			addChatMessage(event.user.username + " left the game", Color.YELLOW);
 			removeUser(event.user);
 		}
+		else if (object instanceof ServerObjectList)
+		{
+			ServerObject[] objectList = ((ServerObjectList)object).objects;
+			for (int i = 0; i < objectList.length; i++)
+			{
+				ServerObject serverObject = objectList[i];
+				if (serverObject instanceof ServerCard)
+				{
+					ServerCard serverCard = (ServerCard)serverObject;
+					System.out.println(serverCard.getX() + ", " + serverCard.getY());
+					Card card = new Card(this, serverCard.getUUID(), serverCard.rank, serverCard.suit,
+							serverCard.getX(), serverCard.getY(), serverCard.getRotation(), serverCard.lockHolder);
+					uuidActorMap.put(serverCard.getUUID(), card);
+					stage.addActor(card);
+					card.setZIndex(i);
+				}
+			}
+		}
 		else if (object instanceof CursorPosition)
 		{
 			CursorPosition cursorPosition = (CursorPosition)object;
-			User user = otherUsers.get(cursorPosition.uuid);
+			User user = otherUsers.get(cursorPosition.userUuid);
 			if (user != null)
 				user.cursor.setTargetPosition(cursorPosition.getX() - 3, cursorPosition.getY() - 32);
+		}
+		else if (object instanceof LockEvent)
+		{
+			LockEvent event = (LockEvent)object;
+			Actor actor = uuidActorMap.get(event.lockedUuid);
+			if (actor instanceof Card)
+			{
+				Card card = (Card)actor;
+				card.setZIndex(uuidActorMap.size);
+				card.lockHolder = event.lockHolder;
+			}
+		}
+		else if (object instanceof ServerObjectPosition)
+		{
+			ServerObjectPosition serverObjectPosition = (ServerObjectPosition)object;
+			Actor actor = uuidActorMap.get(serverObjectPosition.uuid);
+			if (actor instanceof Card)
+				((Card)actor).setTargetPosition(serverObjectPosition.x, serverObjectPosition.y);
 		}
 	}
 }
