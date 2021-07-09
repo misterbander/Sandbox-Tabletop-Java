@@ -7,9 +7,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.UUID;
 
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.CursorPosition;
+import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.ServerCard;
+import misterbander.sandboxtabletop.net.model.ServerObject;
+import misterbander.sandboxtabletop.net.model.ServerObjectList;
+import misterbander.sandboxtabletop.net.model.ServerObjectPosition;
 import misterbander.sandboxtabletop.net.model.User;
 import misterbander.sandboxtabletop.net.model.UserEvent;
 import misterbander.sandboxtabletop.net.model.UserList;
@@ -22,6 +28,9 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	private final ServerSocket serverSocket;
 	private final Array<Connection> connections = new Array<>();
 	private final ObjectMap<Connection, User> connectionUserMap = new ObjectMap<>();
+	
+	private final ObjectMap<UUID, ServerObject> uuidObjectMap = new ObjectMap<>();
+	private final Array<ServerObject> objects = new Array<>();
 	
 	public static void main(String[] args) throws IOException
 	{
@@ -38,6 +47,22 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	{
 		this.serverSocket = new ServerSocket(port);
 		System.out.println("[SandboxTabletopServer | INFO] Created server at port " + port);
+		
+		addCard(ServerCard.Rank.EIGHT, ServerCard.Suit.CLUBS);
+		addCard(ServerCard.Rank.NINE, ServerCard.Suit.DIAMONDS);
+	}
+	
+	public void addCard(ServerCard.Rank rank, ServerCard.Suit suit)
+	{
+		UUID uuid;
+		do
+		{
+			uuid = UUID.randomUUID(); // Generate a random UUID that is not already used
+		}
+		while (uuidObjectMap.containsKey(uuid));
+		ServerCard serverCard = new ServerCard(uuid, rank, suit);
+		uuidObjectMap.put(serverCard.getUUID(), serverCard);
+		objects.add(serverCard);
 	}
 	
 	@Override
@@ -108,6 +133,7 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 			
 			// Client state synchronization
 			connection.send(new UserList(connectionUserMap.values().toArray().toArray(User.class)));
+			connection.send(new ServerObjectList(objects.toArray(ServerObject.class)));
 			
 			broadcast(new UserEvent.UserJoinEvent(user));
 		}
@@ -119,5 +145,40 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 		}
 		else if (object instanceof CursorPosition)
 			broadcast(object);
+		else if (object instanceof LockEvent)
+		{
+			LockEvent event = (LockEvent)object;
+			ServerObject ownedObject = uuidObjectMap.get(event.lockedUuid);
+			if (ownedObject instanceof ServerCard)
+			{
+				ServerCard card = (ServerCard)ownedObject;
+				System.out.println("[SandboxTabletopServer | INFO] " + event.lockHolder + " trying to lock " + card.rank + " of " + card.suit);
+				if (card.lockHolder == null || event.lockHolder == null)
+				{
+					if (card.lockHolder == null)
+					{
+						// Move the card to the top
+						objects.removeValue(card, false);
+						objects.add(card);
+					}
+					card.lockHolder = event.lockHolder;
+					broadcast(event);
+				}
+			}
+		}
+		else if (object instanceof ServerObjectPosition)
+		{
+			ServerObjectPosition serverObjectPosition = (ServerObjectPosition)object;
+			ServerObject serverObject = uuidObjectMap.get(serverObjectPosition.uuid);
+			assert serverObject != null;
+			serverObject.setPosition(serverObjectPosition.x, serverObjectPosition.y);
+			System.out.println(serverObject);
+			for (ServerObject o : uuidObjectMap.values())
+			{
+				ServerCard c = (ServerCard)o;
+				System.out.println(c.rank + " of " + c.suit + ":" + o.getX() + " " + o.getY());
+			}
+			broadcast(object);
+		}
 	}
 }

@@ -5,12 +5,12 @@ import java.util.UUID;
 
 public class CursorPosition implements Serializable
 {
-	public final UUID uuid;
+	public final UUID userUuid;
 	private int x, y;
 	
-	public CursorPosition(UUID uuid, int x, int y)
+	public CursorPosition(UUID userUuid, int x, int y)
 	{
-		this.uuid = uuid;
+		this.userUuid = userUuid;
 		this.x = x;
 		this.y = y;
 	}

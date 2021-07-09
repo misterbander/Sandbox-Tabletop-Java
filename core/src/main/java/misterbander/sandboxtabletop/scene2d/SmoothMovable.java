@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 public class SmoothMovable extends Actor
 {
 	public float smoothingFactor;
-	public int targetX, targetY;
+	public float targetX, targetY;
 	
 	public SmoothMovable()
 	{
@@ -24,7 +24,7 @@ public class SmoothMovable extends Actor
 		setPosition(getX() + (targetX - getX())/smoothingFactor, getY() + (targetY - getY())/smoothingFactor);
 	}
 	
-	public void setTargetPosition(int x, int y)
+	public void setTargetPosition(float x, float y)
 	{
 		targetX = x;
 		targetY = y;
