@@ -411,35 +411,35 @@ cardspadesqueen
   index: -1
 chatbackground
   rotate: false
-  xy: 1654, 584
+  xy: 1730, 820
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebutton
   rotate: false
-  xy: 1730, 820
+  xy: 1882, 972
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebuttondown
   rotate: false
-  xy: 1442, 306
+  xy: 1526, 390
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 closebuttonover
   rotate: false
-  xy: 1586, 516
+  xy: 1654, 584
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 cursorbase
   rotate: false
-  xy: 1526, 390
+  xy: 1586, 516
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -451,16 +451,23 @@ cursorborder
   orig: 32, 32
   offset: 0, 0
   index: -1
+hand
+  rotate: false
+  xy: 1586, 552
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
 menuicon
   rotate: false
-  xy: 1882, 972
+  xy: 1298, 44
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 menuicondown
   rotate: false
-  xy: 1298, 44
+  xy: 1442, 238
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -474,7 +481,7 @@ textcursor
   index: -1
 textfield
   rotate: false
-  xy: 1814, 940
+  xy: 1298, 80
   size: 64, 64
   split: 30, 30, 30, 30
   pad: 15, 16, 15, 17
@@ -483,7 +490,7 @@ textfield
   index: -1
 textfieldfocused
   rotate: false
-  xy: 1586, 552
+  xy: 1730, 856
   size: 64, 64
   split: 30, 30, 30, 30
   pad: 15, 17, 15, 17
@@ -492,14 +499,14 @@ textfieldfocused
   index: -1
 textselection
   rotate: false
-  xy: 1730, 856
+  xy: 1814, 940
   size: 64, 64
   orig: 64, 64
   offset: 0, 0
   index: -1
 window
   rotate: false
-  xy: 1298, 80
+  xy: 1442, 274
   size: 64, 64
   split: 2, 2, 50, 2
   pad: 0, 0, 50, 0
