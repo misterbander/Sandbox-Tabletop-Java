@@ -15,6 +15,7 @@ import java.util.UUID;
 import misterbander.sandboxtabletop.RoomScreen;
 import misterbander.sandboxtabletop.net.model.FlipCardEvent;
 import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.OwnerEvent;
 import misterbander.sandboxtabletop.net.model.ServerCard;
 import misterbander.sandboxtabletop.net.model.ServerObjectPosition;
 import misterbander.sandboxtabletop.net.model.User;
@@ -24,12 +25,13 @@ public class Card extends SmoothMovable
 	private final RoomScreen screen;
 	
 	private final Drawable faceUpDrawable, faceDownDrawable;
-	private final Image cardImage;
+	public final Image cardImage;
 	public @Null User lockHolder;
+	public @Null User owner;
 	
 	private boolean isFaceUp;
 	
-	public Card(RoomScreen screen, UUID uuid, ServerCard.Rank rank, ServerCard.Suit suit, @Null User lockHolder,
+	public Card(RoomScreen screen, UUID uuid, ServerCard.Rank rank, ServerCard.Suit suit, @Null User lockHolder, @Null User owner,
 				float x, float y, float rotation, boolean isFaceUp)
 	{
 		this.screen = screen;
@@ -53,7 +55,7 @@ public class Card extends SmoothMovable
 			@Override
 			public void dragStart(InputEvent event, float x, float y, int pointer)
 			{
-				if (!isLocked() && !isLockHolder())
+				if (!isLocked() && !isLockHolder() && (owner == null || owner.equals(screen.user)))
 				{
 					System.out.println("locking " + rank + " " + suit);
 					screen.client.send(new LockEvent(screen.user, uuid));
@@ -68,6 +70,17 @@ public class Card extends SmoothMovable
 					setTargetPosition(getX() + x - getDragStartX(), getY() + y - getDragStartY());
 					setPosition(getX() + x - getDragStartX(), getY() + y - getDragStartY());
 					screen.latestServerObjectPosition = new ServerObjectPosition(uuid, getX(), getY());
+					
+					if (getY() < 64) // Put it in hand
+					{
+						if (screen.hand.addCard(Card.this))
+							screen.client.send(new OwnerEvent(screen.user, uuid));
+					}
+					else
+					{
+						if (screen.hand.removeCard(Card.this))
+							screen.client.send(new OwnerEvent(null, uuid));
+					}
 				}
 			}
 			
@@ -76,12 +89,14 @@ public class Card extends SmoothMovable
 			{
 				if (isLockHolder())
 					screen.client.send(new LockEvent(null, uuid));
+				screen.hand.arrangeCards(true);
 			}
 		});
 		setPosition(x, y);
 		setTargetPosition(x, y);
 		setRotation(rotation);
 		this.lockHolder = lockHolder;
+		this.owner = owner;
 		
 		this.isFaceUp = isFaceUp;
 	}
@@ -97,6 +112,8 @@ public class Card extends SmoothMovable
 	@Override
 	public @Null Actor hit(float x, float y, boolean touchable)
 	{
+		if (!isVisible())
+			return null;
 		return cardImage.hit(x, y, touchable);
 	}
 	
@@ -105,7 +122,7 @@ public class Card extends SmoothMovable
 		return screen.user.equals(lockHolder);
 	}
 	
-	private boolean isLocked()
+	public boolean isLocked()
 	{
 		return lockHolder != null;
 	}

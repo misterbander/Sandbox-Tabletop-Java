@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -37,8 +38,9 @@ import misterbander.sandboxtabletop.net.ConnectionEventListener;
 import misterbander.sandboxtabletop.net.SandboxTabletopClient;
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.CursorPosition;
-import misterbander.sandboxtabletop.net.model.LockEvent;
 import misterbander.sandboxtabletop.net.model.FlipCardEvent;
+import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.OwnerEvent;
 import misterbander.sandboxtabletop.net.model.ServerCard;
 import misterbander.sandboxtabletop.net.model.ServerObject;
 import misterbander.sandboxtabletop.net.model.ServerObjectList;
@@ -48,8 +50,8 @@ import misterbander.sandboxtabletop.net.model.UserEvent;
 import misterbander.sandboxtabletop.net.model.UserList;
 import misterbander.sandboxtabletop.scene2d.Card;
 import misterbander.sandboxtabletop.scene2d.Cursor;
-import misterbander.sandboxtabletop.scene2d.Debug;
 import misterbander.sandboxtabletop.scene2d.GameMenuWindow;
+import misterbander.sandboxtabletop.scene2d.Hand;
 
 public class RoomScreen extends SandboxTabletopScreen implements ConnectionEventListener
 {
@@ -75,7 +77,10 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 	private final CursorPosition cursorPosition;
 	public @Null ServerObjectPosition latestServerObjectPosition;
 	
-	private final ObjectMap<UUID, Actor> uuidActorMap = new ObjectMap<>();
+	public final ObjectMap<UUID, Actor> uuidActorMap = new ObjectMap<>();
+	public final Hand hand = new Hand(this);
+	
+	private final TextureRegion handRegion = game.skin.getRegion("hand");
 	
 	public RoomScreen(SandboxTabletop game, SandboxTabletopClient client, User user)
 	{
@@ -194,7 +199,7 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		
 		uiStage.addActor(gameMenuWindow);
 		
-		stage.addActor(new Debug(viewport, game.getShapeDrawer()));
+//		stage.addActor(new Debug(viewport, game.getShapeDrawer()));
 		if (Gdx.app.getType() != Application.ApplicationType.Desktop)
 		{
 			myCursor = new Cursor(user, game.skin, true);
@@ -313,8 +318,10 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 		game.getBatch().begin();
 		game.getShapeDrawer().setColor(SandboxTabletop.BACKGROUND_COLOR);
 		game.getShapeDrawer().filledRectangle(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-		game.getBatch().end();
 		game.getBatch().setShader(null);
+		game.getBatch().setColor(1, 1, 1, 1);
+		game.getBatch().draw(handRegion, 0, 0, viewport.getWorldWidth(), 96);
+		game.getBatch().end();
 		renderStage(camera, stage, delta);
 		renderStage(uiCamera, uiStage, delta);
 		updateWorld();
@@ -392,14 +399,22 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				if (serverObject instanceof ServerCard)
 				{
 					ServerCard serverCard = (ServerCard)serverObject;
-					System.out.println(serverCard.getX() + ", " + serverCard.getY());
-					Card card = new Card(this, serverCard.getUUID(), serverCard.rank, serverCard.suit, serverCard.lockHolder,
+					Card card = new Card(this, serverCard.getUUID(), serverCard.rank, serverCard.suit, serverCard.lockHolder, serverCard.owner,
 							serverCard.getX(), serverCard.getY(), serverCard.getRotation(), serverCard.isFaceUp);
 					uuidActorMap.put(serverCard.getUUID(), card);
 					stage.addActor(card);
 					card.setZIndex(i);
+					if (card.owner != null)
+					{
+						if (user.equals(card.owner))
+							hand.addCard(card);
+						else
+							card.setVisible(false);
+					}
 				}
 			}
+			System.out.println("Arranging cards");
+			hand.arrangeCards(false);
 		}
 		else if (object instanceof CursorPosition)
 		{
@@ -419,12 +434,27 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				card.lockHolder = event.lockHolder;
 			}
 		}
+		else if (object instanceof OwnerEvent)
+		{
+			OwnerEvent event = (OwnerEvent)object;
+			Actor actor = uuidActorMap.get(event.ownedUuid);
+			if (actor instanceof Card)
+			{
+				Card card = (Card)actor;
+				card.owner = event.owner;
+				card.setVisible(card.owner == null || card.owner.equals(user));
+			}
+		}
 		else if (object instanceof ServerObjectPosition)
 		{
 			ServerObjectPosition serverObjectPosition = (ServerObjectPosition)object;
 			Actor actor = uuidActorMap.get(serverObjectPosition.uuid);
 			if (actor instanceof Card)
-				((Card)actor).setTargetPosition(serverObjectPosition.x, serverObjectPosition.y);
+			{
+				Card card = (Card)actor;
+				if (card.owner == null)
+					card.setTargetPosition(serverObjectPosition.x, serverObjectPosition.y);
+			}
 		}
 		else if (object instanceof FlipCardEvent)
 		{
@@ -433,8 +463,9 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			if (actor instanceof Card)
 			{
 				Card card = (Card)actor;
-				card.setZIndex(uuidActorMap.size);
 				card.setFaceUp(flipCardEvent.isFaceUp);
+				if (card.owner == null)
+					card.setZIndex(uuidActorMap.size);
 			}
 		}
 	}

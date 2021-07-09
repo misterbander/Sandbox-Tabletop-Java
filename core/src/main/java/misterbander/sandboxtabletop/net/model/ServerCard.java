@@ -16,6 +16,7 @@ public class ServerCard implements Serializable, ServerObject
 	public boolean isFaceUp;
 	
 	public @Null User lockHolder;
+	public @Null User owner;
 	
 	public ServerCard(UUID uuid, Rank rank, Suit suit)
 	{

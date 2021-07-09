@@ -11,8 +11,9 @@ import java.util.UUID;
 
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.CursorPosition;
-import misterbander.sandboxtabletop.net.model.LockEvent;
 import misterbander.sandboxtabletop.net.model.FlipCardEvent;
+import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.OwnerEvent;
 import misterbander.sandboxtabletop.net.model.ServerCard;
 import misterbander.sandboxtabletop.net.model.ServerObject;
 import misterbander.sandboxtabletop.net.model.ServerObjectList;
@@ -35,7 +36,10 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 	
 	public static void main(String[] args) throws IOException
 	{
-		new SandboxTabletopServer(11530).start();
+		int port = 11530;
+		if (args.length > 0)
+			port = Integer.parseInt(args[0]);
+		new SandboxTabletopServer(port).start();
 	}
 	
 	/**
@@ -49,8 +53,23 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 		this.serverSocket = new ServerSocket(port);
 		System.out.println("[SandboxTabletopServer | INFO] Created server at port " + port);
 		
-		addCard(ServerCard.Rank.EIGHT, ServerCard.Suit.CLUBS);
-		addCard(ServerCard.Rank.NINE, ServerCard.Suit.DIAMONDS);
+		for (int i = 0; i < 4; i++)
+		{
+			ServerCard.Suit suit = ServerCard.Suit.values()[i];
+			for (int j = 1; j <= 13; j++)
+			{
+				ServerCard.Rank rank = ServerCard.Rank.values()[j];
+				addCard(rank, suit);
+			}
+		}
+		addCard(ServerCard.Rank.NO_RANK, ServerCard.Suit.JOKER);
+		addCard(ServerCard.Rank.NO_RANK, ServerCard.Suit.JOKER);
+		objects.shuffle();
+		for (int i = 0; i < objects.size; i++)
+		{
+			ServerCard card = (ServerCard)objects.get(i);
+			card.setPosition(640 - i, 260 + i);
+		}
 	}
 	
 	public void addCard(ServerCard.Rank rank, ServerCard.Suit suit)
@@ -161,6 +180,18 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 					card.lockHolder = event.lockHolder;
 					broadcast(event);
 				}
+			}
+		}
+		else if (object instanceof OwnerEvent)
+		{
+			OwnerEvent event = (OwnerEvent)object;
+			ServerObject ownedObject = uuidObjectMap.get(event.ownedUuid);
+			if (ownedObject instanceof ServerCard)
+			{
+				ServerCard card = (ServerCard)ownedObject;
+				System.out.println("[SandboxTabletopServer | INFO] " + event.owner + " trying to keep " + card.rank + " of " + card.suit);
+				card.owner = event.owner;
+				broadcast(event);
 			}
 		}
 		else if (object instanceof ServerObjectPosition)
