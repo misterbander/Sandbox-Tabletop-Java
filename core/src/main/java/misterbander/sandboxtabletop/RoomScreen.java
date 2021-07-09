@@ -38,6 +38,7 @@ import misterbander.sandboxtabletop.net.SandboxTabletopClient;
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.CursorPosition;
 import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.FlipCardEvent;
 import misterbander.sandboxtabletop.net.model.ServerCard;
 import misterbander.sandboxtabletop.net.model.ServerObject;
 import misterbander.sandboxtabletop.net.model.ServerObjectList;
@@ -392,8 +393,8 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 				{
 					ServerCard serverCard = (ServerCard)serverObject;
 					System.out.println(serverCard.getX() + ", " + serverCard.getY());
-					Card card = new Card(this, serverCard.getUUID(), serverCard.rank, serverCard.suit,
-							serverCard.getX(), serverCard.getY(), serverCard.getRotation(), serverCard.lockHolder);
+					Card card = new Card(this, serverCard.getUUID(), serverCard.rank, serverCard.suit, serverCard.lockHolder,
+							serverCard.getX(), serverCard.getY(), serverCard.getRotation(), serverCard.isFaceUp);
 					uuidActorMap.put(serverCard.getUUID(), card);
 					stage.addActor(card);
 					card.setZIndex(i);
@@ -424,6 +425,17 @@ public class RoomScreen extends SandboxTabletopScreen implements ConnectionEvent
 			Actor actor = uuidActorMap.get(serverObjectPosition.uuid);
 			if (actor instanceof Card)
 				((Card)actor).setTargetPosition(serverObjectPosition.x, serverObjectPosition.y);
+		}
+		else if (object instanceof FlipCardEvent)
+		{
+			FlipCardEvent flipCardEvent = (FlipCardEvent)object;
+			Actor actor = uuidActorMap.get(flipCardEvent.uuid);
+			if (actor instanceof Card)
+			{
+				Card card = (Card)actor;
+				card.setZIndex(uuidActorMap.size);
+				card.setFaceUp(flipCardEvent.isFaceUp);
+			}
 		}
 	}
 }
