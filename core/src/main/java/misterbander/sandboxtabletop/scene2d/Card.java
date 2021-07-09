@@ -4,13 +4,16 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 
 import java.util.UUID;
 
 import misterbander.sandboxtabletop.RoomScreen;
+import misterbander.sandboxtabletop.net.model.FlipCardEvent;
 import misterbander.sandboxtabletop.net.model.LockEvent;
 import misterbander.sandboxtabletop.net.model.ServerCard;
 import misterbander.sandboxtabletop.net.model.ServerObjectPosition;
@@ -20,25 +23,41 @@ public class Card extends SmoothMovable
 {
 	private final RoomScreen screen;
 	
-	private final UUID uuid;
+	private final Drawable faceUpDrawable, faceDownDrawable;
 	private final Image cardImage;
 	public @Null User lockHolder;
 	
-	public Card(RoomScreen screen, UUID uuid, ServerCard.Rank rank, ServerCard.Suit suit,
-				float x, float y, float rotation, @Null User lockHolder)
+	private boolean isFaceUp;
+	
+	public Card(RoomScreen screen, UUID uuid, ServerCard.Rank rank, ServerCard.Suit suit, @Null User lockHolder,
+				float x, float y, float rotation, boolean isFaceUp)
 	{
 		this.screen = screen;
 		
-		this.uuid = uuid;
-		cardImage = new Image(screen.game.skin.getRegion("card" + suit.toString() + rank.toString()));
+		faceUpDrawable = screen.game.skin.getDrawable("card" + suit.toString() + rank.toString());
+		faceDownDrawable = screen.game.skin.getDrawable("cardbackred");
+		
+		cardImage = new Image(isFaceUp ? faceUpDrawable : faceDownDrawable);
 		cardImage.setOrigin(Align.center);
+		cardImage.addListener(new ClickListener()
+		{
+			@Override
+			public void clicked(InputEvent event, float x, float y)
+			{
+				if (!isLocked())
+					screen.client.send(new FlipCardEvent(uuid, !isFaceUp()));
+			}
+		});
 		cardImage.addListener(new DragListener()
 		{
 			@Override
 			public void dragStart(InputEvent event, float x, float y, int pointer)
 			{
-				System.out.println("locking " + rank + " " + suit);
-				screen.client.send(new LockEvent(screen.user, uuid));
+				if (!isLocked() && !isLockHolder())
+				{
+					System.out.println("locking " + rank + " " + suit);
+					screen.client.send(new LockEvent(screen.user, uuid));
+				}
 			}
 			
 			@Override
@@ -63,6 +82,8 @@ public class Card extends SmoothMovable
 		setTargetPosition(x, y);
 		setRotation(rotation);
 		this.lockHolder = lockHolder;
+		
+		this.isFaceUp = isFaceUp;
 	}
 	
 	@Override
@@ -82,6 +103,22 @@ public class Card extends SmoothMovable
 	private boolean isLockHolder()
 	{
 		return screen.user.equals(lockHolder);
+	}
+	
+	private boolean isLocked()
+	{
+		return lockHolder != null;
+	}
+	
+	private boolean isFaceUp()
+	{
+		return isFaceUp;
+	}
+	
+	public void setFaceUp(boolean isFaceUp)
+	{
+		this.isFaceUp = isFaceUp;
+		cardImage.setDrawable(isFaceUp ? faceUpDrawable : faceDownDrawable);
 	}
 	
 	@Override

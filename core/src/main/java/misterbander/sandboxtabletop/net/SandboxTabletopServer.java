@@ -12,6 +12,7 @@ import java.util.UUID;
 import misterbander.sandboxtabletop.net.model.Chat;
 import misterbander.sandboxtabletop.net.model.CursorPosition;
 import misterbander.sandboxtabletop.net.model.LockEvent;
+import misterbander.sandboxtabletop.net.model.FlipCardEvent;
 import misterbander.sandboxtabletop.net.model.ServerCard;
 import misterbander.sandboxtabletop.net.model.ServerObject;
 import misterbander.sandboxtabletop.net.model.ServerObjectList;
@@ -156,11 +157,7 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 				if (card.lockHolder == null || event.lockHolder == null)
 				{
 					if (card.lockHolder == null)
-					{
-						// Move the card to the top
-						objects.removeValue(card, false);
-						objects.add(card);
-					}
+						moveObjectToTop(card);
 					card.lockHolder = event.lockHolder;
 					broadcast(event);
 				}
@@ -172,13 +169,25 @@ public class SandboxTabletopServer extends Thread implements ConnectionEventList
 			ServerObject serverObject = uuidObjectMap.get(serverObjectPosition.uuid);
 			assert serverObject != null;
 			serverObject.setPosition(serverObjectPosition.x, serverObjectPosition.y);
-			System.out.println(serverObject);
-			for (ServerObject o : uuidObjectMap.values())
+			broadcast(object);
+		}
+		else if (object instanceof FlipCardEvent)
+		{
+			FlipCardEvent event = (FlipCardEvent)object;
+			ServerObject serverObject = uuidObjectMap.get(event.uuid);
+			if (serverObject instanceof ServerCard)
 			{
-				ServerCard c = (ServerCard)o;
-				System.out.println(c.rank + " of " + c.suit + ":" + o.getX() + " " + o.getY());
+				ServerCard card = (ServerCard)serverObject;
+				card.isFaceUp = event.isFaceUp;
+				moveObjectToTop(card);
 			}
 			broadcast(object);
 		}
+	}
+	
+	private void moveObjectToTop(ServerObject object)
+	{
+		objects.removeValue(object, false);
+		objects.add(object);
 	}
 }

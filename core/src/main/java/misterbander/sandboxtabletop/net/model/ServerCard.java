@@ -13,6 +13,7 @@ public class ServerCard implements Serializable, ServerObject
 	private float rotation;
 	public final Rank rank;
 	public final Suit suit;
+	public boolean isFaceUp;
 	
 	public @Null User lockHolder;
 	
